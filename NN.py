@@ -1,0 +1,126 @@
+from keras.models import Sequential
+from keras.layers import Dense, Activation, Dropout
+from keras.constraints import max_norm
+from keras.wrappers.scikit_learn import KerasClassifier
+import keras
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import KFold, GridSearchCV
+import numpy as np
+from numpy.linalg import norm
+import matplotlib.pyplot as plt
+import time
+
+class NeuralNetwork():
+    def __init__(self, architecture, input_dimension, output_dimension, epochs, batch_size, dropout_rate_input=0, dropout_rate_hidden=0):
+        self.architecture = architecture    #number of units in each layer                    
+        self.epochs = epochs
+        self.batch_size = batch_size
+        self.dropout_rate_input = dropout_rate_input
+        self.dropout_rate_hidden = dropout_rate_hidden
+        self.last_model_compiled = Sequential()
+        self.input_dimension = input_dimension
+        self.output_dimension = output_dimension
+    
+    def new_model(self, activation='relu', kernel_initializer='normal',
+                kernel_constraint=max_norm(2.), loss_function=keras.losses.mean_squared_error,
+                lr=0.01, mom=0.0, nesterov=False):
+        model=Sequential()
+        # add input layer
+        if self.dropout_rate_input>0:
+            model.add(Dropout(self.dropout_rate_input))
+        model.add(Dense(kernel_initializer= kernel_initializer, kernel_constraint=kernel_constraint,
+                    units=self.architecture[0], activation=activation, input_dim=self.input_dimension))
+        # add hidden nodes, w/ dropout if given
+        for node in self.architecture[1:]:
+            if self.dropout_rate_hidden>0:
+                model.add(Dropout(self.dropout_rate_hidden))
+            model.add(Dense(kernel_initializer= kernel_initializer, kernel_constraint=kernel_constraint,
+                    units=self.architecture[0], activation=activation))
+        # output layer and model compilation
+        model.add(Dense(units=self.output_dimension,activation='linear'))
+        model.compile(optimizer=keras.optimizers.SGD(learning_rate=lr, momentum=0.0, nesterov=nesterov), loss=loss_function)
+        self.last_model_compiled=model
+        return model
+
+    def train_validate(self, x_train, y_train, x_val, y_val, last_model=True, model=None):
+        start_time = time.time()
+        if last_model:
+            model=self.last_model_compiled
+        else:
+            model=model
+        scaler = StandardScaler()
+        x_train = scaler.fit_transform(x_train)
+        x_val = scaler.transform(x_val)
+        history = model.fit(x=x_train, y=y_train, epochs=self.epochs,
+                            shuffle=True, batch_size=self.batch_size,
+                            validation_data=(x_val,y_val), verbose=2)
+        y_pred = model.predict(x_val)
+        mean_euclidean_error = 0
+        for pred_val, actual_val in zip (y_pred, y_val):
+            mean_euclidean_error += norm(pred_val - actual_val)
+        mean_euclidean_error=mean_euclidean_error/len(y_val)
+        print('\ntime: %.3f s' %(time.time()-start_time))
+        print('Mean Euclidean error: %.3f' %mean_euclidean_error)
+        print('y_pred (%f) and y_val (%f) length' %(len(y_pred), len(y_val)))
+        return history, mean_euclidean_error
+
+    def show_result(self, history):   #should we also print accuracy?
+        loss_array = history.history['loss']
+        validation_loss_array = history.history['val_loss']
+        epochs_array = np.arange(1, self.epochs+1)
+        #plt.plot(loss_array, 'bo')
+        plt.plot(epochs_array, loss_array, label='Training error')
+        plt.plot(epochs_array, validation_loss_array, label='Validation error')
+        plt.xlabel('Epochs')
+        plt.ylabel('Loss')
+        plt.title('Loss-Epochs\nNetwork Architecture '+str(self.architecture))  #NOTE: this doesn't show the output layer
+        plt.legend(loc='upper right')
+        plt.show()
+    
+    def k_fold(self,x, y, n_splits=5, show_single=True):
+        start_time = time.time()
+        kf = KFold(n_splits=n_splits, shuffle=True)
+        scaler = StandardScaler()
+        k_fold_history = []
+        k_fold_mee = []
+        for index, (train, test) in enumerate(kf.split(x)):
+            model = self.new_model()
+            x_train, y_train = x[train], y[train]
+            x_test, y_test = x[test], y[test]
+            x_train = scaler.fit_transform(x_train)
+            x_test = scaler.transform(x_test)
+            history, error = self.train_validate(x_train, y_train, x_test, y_test, model)
+            k_fold_mee.append(error)
+            k_fold_history.append(history)
+            if show_single :
+                print('#iteration n° %d\n' %(index+1))
+                self.show_result(history)
+        #add functionality that print mean over the k-fold
+        #### if show_mean :
+        mean_mee = np.mean(k_fold_mee)
+        print('time: %.2f' %(time.time()-start_time))
+        print('Mean Euclidean error (over all evaluations): %.3f' %mean_mee)
+        return k_fold_history, k_fold_mee
+
+    def hp_tuning(self, x, y, **kwargs):
+        # Parameters to be optimized can be choosen between the parameters of self.new_model and are 
+        # given through **kwargs as --> parameter=[list of values to try for tuning]
+        # NOTE: batch_size and epochs can also be choosen
+        estimator = KerasClassifier(self.new_model())
+        param_grid = {}
+        for key, value in kwargs.items():
+            param_grid[key] = value
+        print(param_grid)
+        
+        grid = GridSearchCV(estimator=estimator, param_grid=param_grid)
+        print('\n\n\n\n')
+        grid_fitted = grid.fit(x, y)
+        print('Best score obtained is %f with param: %s' %(grid_fitted.best_score_, grid_fitted.best_params_))
+        return grid_fitted
+
+
+def main():
+    pass
+
+if __name__ == '__main__':
+    main()
