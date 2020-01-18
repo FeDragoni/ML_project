@@ -1,0 +1,46 @@
+RESULT OF HYPERPARMETERS TUNING FOR NN
+Saved because calculations are slow
+
+architecture = [10, 30, 30, 10]
+
+parameter grid : {'optimizer': ['rmsprop', 'adagrad'], 'init': ['glorot_uniform', 'normal', 'uniform'], 'epochs': [50, 100, 500], 'loss': ['binary_crossentropy', 'hinge']}
+
+
+Best: 0.803000 using {'epochs': 500, 'init': 'glorot_uniform', 'loss': 'binary_crossentropy', 'optimizer': 'rmsprop'}
+
+0.715333 (0.058740) with: {'epochs': 50, 'init': 'glorot_uniform', 'loss': 'binary_crossentropy', 'optimizer': 'rmsprop'}
+0.713667 (0.102026) with: {'epochs': 50, 'init': 'glorot_uniform', 'loss': 'binary_crossentropy', 'optimizer': 'adagrad'}
+0.690667 (0.087703) with: {'epochs': 50, 'init': 'glorot_uniform', 'loss': 'hinge', 'optimizer': 'rmsprop'}
+0.746333 (0.098941) with: {'epochs': 50, 'init': 'glorot_uniform', 'loss': 'hinge', 'optimizer': 'adagrad'}
+0.569667 (0.156675) with: {'epochs': 50, 'init': 'normal', 'loss': 'binary_crossentropy', 'optimizer': 'rmsprop'}
+0.575333 (0.161350) with: {'epochs': 50, 'init': 'normal', 'loss': 'binary_crossentropy', 'optimizer': 'adagrad'}
+0.583333 (0.109382) with: {'epochs': 50, 'init': 'normal', 'loss': 'hinge', 'optimizer': 'rmsprop'}
+0.595000 (0.113216) with: {'epochs': 50, 'init': 'normal', 'loss': 'hinge', 'optimizer': 'adagrad'}
+0.439333 (0.033889) with: {'epochs': 50, 'init': 'uniform', 'loss': 'binary_crossentropy', 'optimizer': 'rmsprop'}
+0.578333 (0.102827) with: {'epochs': 50, 'init': 'uniform', 'loss': 'binary_crossentropy', 'optimizer': 'adagrad'}
+0.439333 (0.033889) with: {'epochs': 50, 'init': 'uniform', 'loss': 'hinge', 'optimizer': 'rmsprop'}
+0.575333 (0.128194) with: {'epochs': 50, 'init': 'uniform', 'loss': 'hinge', 'optimizer': 'adagrad'}
+0.722333 (0.083411) with: {'epochs': 100, 'init': 'glorot_uniform', 'loss': 'binary_crossentropy', 'optimizer': 'rmsprop'}
+0.739333 (0.071559) with: {'epochs': 100, 'init': 'glorot_uniform', 'loss': 'binary_crossentropy', 'optimizer': 'adagrad'}
+0.690000 (0.108812) with: {'epochs': 100, 'init': 'glorot_uniform', 'loss': 'hinge', 'optimizer': 'rmsprop'}
+0.650000 (0.068467) with: {'epochs': 100, 'init': 'glorot_uniform', 'loss': 'hinge', 'optimizer': 'adagrad'}
+0.562333 (0.149427) with: {'epochs': 100, 'init': 'normal', 'loss': 'binary_crossentropy', 'optimizer': 'rmsprop'}
+0.730333 (0.111865) with: {'epochs': 100, 'init': 'normal', 'loss': 'binary_crossentropy', 'optimizer': 'adagrad'}
+0.519333 (0.094526) with: {'epochs': 100, 'init': 'normal', 'loss': 'hinge', 'optimizer': 'rmsprop'}
+0.690667 (0.043952) with: {'epochs': 100, 'init': 'normal', 'loss': 'hinge', 'optimizer': 'adagrad'}
+0.530000 (0.122638) with: {'epochs': 100, 'init': 'uniform', 'loss': 'binary_crossentropy', 'optimizer': 'rmsprop'}
+0.537333 (0.115593) with: {'epochs': 100, 'init': 'uniform', 'loss': 'binary_crossentropy', 'optimizer': 'adagrad'}
+0.488333 (0.088418) with: {'epochs': 100, 'init': 'uniform', 'loss': 'hinge', 'optimizer': 'rmsprop'}
+0.496333 (0.081612) with: {'epochs': 100, 'init': 'uniform', 'loss': 'hinge', 'optimizer': 'adagrad'}
+0.803000 (0.114088) with: {'epochs': 500, 'init': 'glorot_uniform', 'loss': 'binary_crossentropy', 'optimizer': 'rmsprop'}
+0.788333 (0.080402) with: {'epochs': 500, 'init': 'glorot_uniform', 'loss': 'binary_crossentropy', 'optimizer': 'adagrad'}
+0.787000 (0.100931) with: {'epochs': 500, 'init': 'glorot_uniform', 'loss': 'hinge', 'optimizer': 'rmsprop'}
+0.747333 (0.072699) with: {'epochs': 500, 'init': 'glorot_uniform', 'loss': 'hinge', 'optimizer': 'adagrad'}
+0.681667 (0.092508) with: {'epochs': 500, 'init': 'normal', 'loss': 'binary_crossentropy', 'optimizer': 'rmsprop'}
+0.623333 (0.147030) with: {'epochs': 500, 'init': 'normal', 'loss': 'binary_crossentropy', 'optimizer': 'adagrad'}
+0.649333 (0.084706) with: {'epochs': 500, 'init': 'normal', 'loss': 'hinge', 'optimizer': 'rmsprop'}
+0.680000 (0.169876) with: {'epochs': 500, 'init': 'normal', 'loss': 'hinge', 'optimizer': 'adagrad'}
+0.626667 (0.132502) with: {'epochs': 500, 'init': 'uniform', 'loss': 'binary_crossentropy', 'optimizer': 'rmsprop'}
+0.626000 (0.148969) with: {'epochs': 500, 'init': 'uniform', 'loss': 'binary_crossentropy', 'optimizer': 'adagrad'}
+0.545667 (0.125679) with: {'epochs': 500, 'init': 'uniform', 'loss': 'hinge', 'optimizer': 'rmsprop'}
+0.610000 (0.095731) with: {'epochs': 500, 'init': 'uniform', 'loss': 'hinge', 'optimizer': 'adagrad'}

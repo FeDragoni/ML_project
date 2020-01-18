@@ -22,23 +22,26 @@ class NeuralNetwork():
         self.output_dimension = output_dimension
     
     def new_model(self, activation='relu', kernel_initializer='normal',
-                kernel_constraint=max_norm(2.), loss_function=keras.losses.mean_squared_error,
+                kernel_constraint=4.0, loss_function=keras.losses.mean_squared_error,
                 lr=0.01, mom=0.0, nesterov=False):
         model=Sequential()
         # add input layer
         if self.dropout_rate_input>0:
             model.add(Dropout(self.dropout_rate_input))
-        model.add(Dense(kernel_initializer= kernel_initializer, kernel_constraint=kernel_constraint,
+        model.add(Dense(kernel_initializer= kernel_initializer, kernel_constraint=max_norm(kernel_constraint),
                     units=self.architecture[0], activation=activation, input_dim=self.input_dimension))
         # add hidden nodes, w/ dropout if given
         for node in self.architecture[1:]:
             if self.dropout_rate_hidden>0:
                 model.add(Dropout(self.dropout_rate_hidden))
-            model.add(Dense(kernel_initializer= kernel_initializer, kernel_constraint=kernel_constraint,
+            model.add(Dense(kernel_initializer= kernel_initializer, kernel_constraint=max_norm(kernel_constraint),
                     units=self.architecture[0], activation=activation))
-        # output layer and model compilation
-        model.add(Dense(units=self.output_dimension,activation='linear'))
-        model.compile(optimizer=keras.optimizers.SGD(learning_rate=lr, momentum=0.0, nesterov=nesterov), loss=loss_function)
+        # output layer and model compilation NOTE: activation function of last layer need some considerations (e.g. using
+        # a linear activation function for binary classification may not be the best choice)
+        model.add(Dense(units=self.output_dimension,activation='sigmoid'))
+        #NOTE: maybe it would be better to choose 'binary_accuracy' to evaluate model performance
+        model.compile(optimizer=keras.optimizers.SGD(learning_rate=lr, momentum=mom, nesterov=nesterov), 
+                        loss=loss_function, metrics=['accuracy'])
         self.last_model_compiled=model
         return model
 
@@ -103,20 +106,25 @@ class NeuralNetwork():
         return k_fold_history, k_fold_mee
 
     def hp_tuning(self, x, y, **kwargs):
+        start_time=time.time()
         # Parameters to be optimized can be choosen between the parameters of self.new_model and are 
         # given through **kwargs as --> parameter=[list of values to try for tuning]
         # NOTE: batch_size and epochs can also be choosen
-        estimator = KerasClassifier(self.new_model())
-        param_grid = {}
-        for key, value in kwargs.items():
-            param_grid[key] = value
+        estimator = KerasClassifier(self.new_model)
+        param_grid = kwargs
         print(param_grid)
         
         grid = GridSearchCV(estimator=estimator, param_grid=param_grid)
         print('\n\n\n\n')
         grid_fitted = grid.fit(x, y)
-        print('Best score obtained is %f with param: %s' %(grid_fitted.best_score_, grid_fitted.best_params_))
+        means = grid_fitted.cv_results_['mean_test_score']
+        stds = grid_fitted.cv_results_['std_test_score']
+        params = grid_fitted.cv_results_['params']
+        for mean, stdev, param in zip(means, stds, params):
+	        print("%f (%f) with: %r" % (mean, stdev, param))
+        print('Best score obtained: %f \nwith param: %s' %(grid_fitted.best_score_, grid_fitted.best_params_))
         return grid_fitted
+        print('elapsed time: %.3f' %(time.time()-start_time))
 
 
 def main():

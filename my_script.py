@@ -22,11 +22,10 @@ y_train = y_train.reshape(y_train.shape[0],1)
 x_test = test_array[:,1:7]
 y_test = test_array[:,0]
 y_test = y_test.reshape(y_test.shape[0],1)
-trial_network = NeuralNetwork([100, 30, 30], x_train.shape[1],y_train.shape[1],500,64, dropout_rate_hidden=0.5)
-trial_network.new_model(mom=0.05, nesterov=True, kernel_constraint=max_norm(10.0), loss_function=keras.losses.binary_crossentropy)
+trial_network = NeuralNetwork([30, 30, 30], x_train.shape[1],y_train.shape[1],500,64, dropout_rate_hidden=0.5)
+trial_network.new_model(lr=0.1, mom=0.05, nesterov=True, loss_function=keras.losses.binary_crossentropy)
 #history, mee = trial_network.train_validate(x_train, y_train, x_test, y_test)
 
 #print(np.mean(history.history['val_loss']))
-grid = trial_network.hp_tuning(x_train, y_train, epochs=[500, 1000], batch_size=[32,64,128,256], 
-                                    activation = ['relu', 'selu', 'softplus'])
-
+grid = trial_network.hp_tuning(x_train, y_train, epochs=[500], batch_size=[32,64], lr=[0.01, 0.05, 0.1, 0.5], mom=[0.0, 0.5, 0.9])
+print('\n\nYOOOOOOOOOOOOOOOOOOHHHHHH\n\n')
