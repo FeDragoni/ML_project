@@ -43,12 +43,28 @@ stds = grid_fitted.cv_results_['std_test_score']
 params = grid_fitted.cv_results_['params']
 array_kernel = []
 array_C = []
+array_means = []
 
 for mean, stdev, param in zip(means, stds, params):
     print("%f (%f) with: %r" % (mean, stdev, param))
     array_kernel = array_kernel + [param['kernel']]
-    array_C = array_C +  [mean]
+    array_C = array_C +  [param ['C']]
+    array_means = array_means + [ mean ]
 
 print('Best score obtained: %f \nwith param: %s' %(grid_fitted.best_score_, grid_fitted.best_params_))
 print (array_kernel)
 print (array_C)
+print(means)
+
+# array_tot = array_kernel.append(array_C)
+array_tot = [array_means, array_C , array_kernel]
+array_tot = zip(*array_tot)
+print (array_tot)
+
+df = pd.DataFrame(array_tot)
+df = df.rename(index=str, columns={0: "mean Validation Error", 1: "Parameter_C", 2: "Kernel" })
+df.to_csv("./result/SVMM.csv")
+
+gh = pd.read_csv("./result/SVMM.csv")
+print(gh)
+print(np.shape(gh))
