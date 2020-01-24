@@ -5,17 +5,18 @@ import sklearn.preprocessing
 from sklearn.utils import shuffle
 from keras.constraints import max_norm
 from NN import NeuralNetwork
+import gen_dataset
 
-def CSV_to_array(file_name, shuf=False, delimiter=',', comment='#'):
-    dataframe = pd.read_csv(file_name, delimiter = delimiter, comment=comment)
-    if shuf :
-        dataframe = shuffle(dataframe)
-        dataframe = dataframe.reset_index(drop=True)
-    array = dataframe.values[:,1:]
-    return array
+# def CSV_to_array(file_name, shuf=False, delimiter=',', comment='#'):
+#     dataframe = pd.read_csv(file_name, delimiter = delimiter, comment=comment)
+#     if shuf :
+#         dataframe = shuffle(dataframe)
+#         dataframe = dataframe.reset_index(drop=True)
+#     array = dataframe.values[:,1:]
+#     return array
 
-train_array = CSV_to_array('./Monk_dataset/monks-1.train', shuf = True, delimiter = ' ')
-test_array = CSV_to_array('./Monk_dataset/monks-1.test', shuf = True, delimiter = ' ')
+train_array = gen_dataset.CSV_to_array('./Monk_dataset/monks-1.train', shuf = True, delimiter = ' ')
+test_array = gen_dataset.CSV_to_array('./Monk_dataset/monks-1.test', shuf = True, delimiter = ' ')
 x_train = train_array[:,1:7]
 y_train = train_array[:,0]
 y_train = y_train.reshape(y_train.shape[0],1)

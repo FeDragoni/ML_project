@@ -21,6 +21,15 @@ def createDevAndTest(Dataset):
 #     print (Dev.shape)
     return True
 
+def CSV_to_array(file_name, shuf=False, delimiter=',', comment='#'):
+    dataframe = pd.read_csv(file_name, delimiter = delimiter, comment=comment)
+    if shuf :
+        dataframe = shuffle(dataframe)
+        dataframe = dataframe.reset_index(drop=True)
+    array = dataframe.values[:,1:]
+    return array
+
+
 def readFile(name):
     df = pd.read_csv(name, delimiter=',', comment='#', header=None)
 #     if shuff:
