@@ -28,4 +28,4 @@ trial_network.new_model(lr=0.1, mom=0.05, nesterov=True, loss_function=keras.los
 #history, mee = trial_network.train_validate(x_train, y_train, x_test, y_test)
 
 #print(np.mean(history.history['val_loss']))
-grid = trial_network.hp_tuning(x_train, y_train, epochs=[500], batch_size=[32], lr=[0.1, 1], mom=[0.5])
+grid = trial_network.hp_tuning_GS(x_train, y_train, epochs=[500], batch_size=[32], lr=[0.1, 1], mom=[0.5])

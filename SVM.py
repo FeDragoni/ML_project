@@ -14,6 +14,8 @@ import gen_dataset
 # import validation
 import csv
 from sklearn.model_selection import GridSearchCV
+import time
+
 ##SVM Classifier
 
 ##creo dataset
@@ -32,15 +34,34 @@ y_train = np.asarray(y_train,dtype=np.float64)
 print (y_train.shape)
 
 ##parametri
+def hp_tuning_svm_GS(svm, x, y, **kwargs):
+    start_time = time.time()
+    y=np.ravel(y,order='C')
+    parameters = kwargs
+    clf = GridSearchCV(svm, parameters)
+    grid_fitted = clf.fit(x, y)
+    print("Time used for grid search: %.3f" %(time.time()-start_time))
+    means = grid_fitted.cv_results_['mean_test_score']
+    stds = grid_fitted.cv_results_['std_test_score']
+    params = grid_fitted.cv_results_['params']
+    for mean, stdev, param in zip(means, stds, params):
+        print("%f (%f) with: %r" % (mean, stdev, param))
+        array_kernel = array_kernel + [param['kernel']]
+        array_C = array_C +  [param ['C']]
+        array_means = array_means + [ mean ]
+    print('Best score obtained: %f \nwith param: %s' %(grid_fitted.best_score_, grid_fitted.best_params_))
+    df=pd.DataFrame(zip(array_kernel,array_C,array_means))
+    df = df.rename(index=str, columns={0: "mean Validation Error", 1: "Parameter_C", 2: "Kernel" })
+    df.to_csv("./result/SVMM_func.csv")
+    print("Total elapsed time: %.3f" %(time.time()-start_time))
+
 
 parameters = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
 svc = svm.SVC()
 
 clf = GridSearchCV(svc, parameters)
 grid_fitted = clf.fit(x_train, np.ravel(y_train,order='C'))
-means = grid_fitted.cv_results_['mean_test_score']
-stds = grid_fitted.cv_results_['std_test_score']
-params = grid_fitted.cv_results_['params']
+
 array_kernel = []
 array_C = []
 array_means = []

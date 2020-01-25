@@ -106,7 +106,7 @@ class NeuralNetwork():
         print('Mean Euclidean error (over all evaluations): %.3f' %mean_mee)
         return k_fold_history, k_fold_mee
 
-    def hp_tuning(self, x, y, **kwargs):
+    def hp_tuning_GS(self, x, y, **kwargs):
         start_time=time.time()
         # Parameters to be optimized can be choosen between the parameters of self.new_model and are 
         # given through **kwargs as --> parameter=[list of values to try for tuning]
