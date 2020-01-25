@@ -9,6 +9,7 @@ import numpy as np
 from numpy.linalg import norm
 import matplotlib.pyplot as plt
 import time
+import pandas as pd
 
 class NeuralNetwork():
     def __init__(self, architecture, input_dimension, output_dimension, epochs, batch_size, dropout_rate_input=0, dropout_rate_hidden=0):
@@ -114,17 +115,22 @@ class NeuralNetwork():
         param_grid = kwargs
         print(param_grid)
         
-        grid = GridSearchCV(estimator=estimator, param_grid=param_grid)
+        grid = GridSearchCV(estimator=estimator, param_grid=param_grid, return_train_score=True)
         print('\n\n\n\n')
         grid_fitted = grid.fit(x, y)
-        means = grid_fitted.cv_results_['mean_test_score']
+        means_test = grid_fitted.cv_results_['mean_test_score']
+        means_train = grid_fitted.cv_results_['mean_train_score']
         stds = grid_fitted.cv_results_['std_test_score']
         params = grid_fitted.cv_results_['params']
-        for mean, stdev, param in zip(means, stds, params):
+        for mean, stdev, param in zip(means_test, stds, params):
 	        print("%f (%f) with: %r" % (mean, stdev, param))
         print('Best score obtained: %f \nwith param: %s' %(grid_fitted.best_score_, grid_fitted.best_params_))
-        return grid_fitted
         print('elapsed time: %.3f' %(time.time()-start_time))
+        df=pd.DataFrame(zip(means_test,means_train,means_train,params))
+        df = df.rename(index=str, columns={0: "mean Validation Score",1:"mean Train Score",2: "Parameters"})
+        df.to_csv("./result/NN.csv")
+        return grid_fitted
+
 
 
 def main():
