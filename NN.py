@@ -4,7 +4,7 @@ from keras.constraints import max_norm
 from keras.wrappers.scikit_learn import KerasClassifier
 import keras
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import KFold, GridSearchCV
+from sklearn.model_selection import KFold, GridSearchCV, RandomizedSearchCV
 import numpy as np
 from numpy.linalg import norm
 import matplotlib.pyplot as plt
@@ -41,6 +41,9 @@ class NeuralNetwork():
         # a linear activation function for binary classification may not be the best choice)
         model.add(Dense(units=self.output_dimension,activation='sigmoid'))
         #NOTE: maybe it would be better to choose 'binary_accuracy' to evaluate model performance
+        if classification:
+            metric='accuracy'
+            else
         model.compile(optimizer=keras.optimizers.SGD(learning_rate=lr, momentum=mom, nesterov=nesterov), 
                         loss=loss_function, metrics=['accuracy'])
         self.last_model_compiled=model
@@ -106,16 +109,16 @@ class NeuralNetwork():
         print('Mean Euclidean error (over all evaluations): %.3f' %mean_mee)
         return k_fold_history, k_fold_mee
 
-    def hp_tuning_GS(self, x, y, **kwargs):
+    def hp_tuning_GS(self, x, y, folds=5, save=True, filename="NN_GS.csv", **kwargs):
         start_time=time.time()
         # Parameters to be optimized can be choosen between the parameters of self.new_model and are 
         # given through **kwargs as --> parameter=[list of values to try for tuning]
         # NOTE: batch_size and epochs can also be choosen
+        #The CSV file with the result is saved inside the result/ folder
         estimator = KerasClassifier(self.new_model)
         param_grid = kwargs
         print(param_grid)
-        
-        grid = GridSearchCV(estimator=estimator, param_grid=param_grid, return_train_score=True)
+        grid = GridSearchCV(estimator=estimator, param_grid=param_grid, return_train_score=True, cv=folds)
         print('\n\n\n\n')
         grid_fitted = grid.fit(x, y)
         means_test = grid_fitted.cv_results_['mean_test_score']
@@ -125,11 +128,38 @@ class NeuralNetwork():
         for mean, stdev, param in zip(means_test, stds, params):
 	        print("%f (%f) with: %r" % (mean, stdev, param))
         print('Best score obtained: %f \nwith param: %s' %(grid_fitted.best_score_, grid_fitted.best_params_))
-        print('elapsed time: %.3f' %(time.time()-start_time))
-        df=pd.DataFrame(zip(means_test,means_train,means_train,params))
-        df = df.rename(index=str, columns={0: "mean Validation Score",1:"mean Train Score",2: "Parameters"})
-        df.to_csv("./result/NN.csv")
+        print('Total elapsed time: %.3f' %(time.time()-start_time))
+        if save:
+            df=pd.DataFrame(zip(means_test,means_train,means_train,params))
+            df = df.rename(index=str, columns={0: "mean Validation Score",1:"mean Train Score",2: "Parameters"})
+            df.to_csv("./result/"+filename)
+        return grid_fitted 
+
+    def hp_tuning_RS(self, x, y, iterations=10, folds=5,save=True, filename="NN_RS.csv",**kwargs):
+        start_time=time.time()
+        #NOTE: continuous parameters should be given as a distribution for a proper random search
+        #Distributions can be generated with scipy.stats module
+        #For parameters that need to be explored in terms of order of magnitude loguniform distribution is recommended
+        estimator = KerasClassifier(self.new_model)
+        param_distr = kwargs
+        random_grid = RandomizedSearchCV(estimator,param_disrt,n_iter=iterations,cv=folds, return_train_score=True)
+        grid_fitted = random_grid.fit(x,y)
+        means_test = grid_fitted.cv_results_['mean_test_score']
+        means_train = grid_fitted.cv_results_['mean_train_score']
+        stds = grid_fitted.cv_results_['std_test_score']
+        params = grid_fitted.cv_results_['params']
+        for mean, stdev, param in zip(means_test, stds, params):
+	        print("%f (%f) with: %r" % (mean, stdev, param))
+        print('Best score obtained: %f \nwith param: %s' %(grid_fitted.best_score_, grid_fitted.best_params_))
+        print('Total elapsed time: %.3f' %(time.time()-start_time))
+        if save:
+            df=pd.DataFrame(zip(means_test,means_train,means_train,params))
+            df = df.rename(index=str, columns={0: "mean Validation Score",1:"mean Train Score",2: "Parameters"})
+            df.to_csv("./result/"+filename)
         return grid_fitted
+
+    def hp_tuning_BO(self,x,y,):
+        return
 
 
 
