@@ -110,14 +110,13 @@ class NeuralNetwork():
 		print('Mean Euclidean error (over all evaluations): %.3f' % mean_mee)
 		return k_fold_history, k_fold_mee
 	
-	def hp_tuning_GS(self, x, y, folds=5, save=True, filename="NN_GS.csv", **kwargs):
+	def hp_tuning_GS(self, x, y, param_grid, folds=5, save=True, filename="NN_GS.csv"):
 		start_time = time.time()
         # Parameters to be optimized can be choosen between the parameters of self.new_model and are
         # given through **kwargs as --> parameter=[list of values to try for tuning]
         # NOTE: batch_size and epochs can also be choosen
         # The CSV file with the result is saved inside the result/ folder
 		estimator = KerasClassifier(self.new_model)
-		param_grid = kwargs
 		print(param_grid)
 		grid = GridSearchCV(
 			estimator=estimator, param_grid=param_grid, return_train_score=True, cv=folds)
@@ -140,15 +139,14 @@ class NeuralNetwork():
 			df.to_csv("./result/"+filename)
 		return grid_fitted
 
-	def hp_tuning_RS(self, x, y, iterations=10, folds=5, save=True, filename="NN_RS.csv", **kwargs):
+	def hp_tuning_RS(self, x, y, param_dist, iterations=10, folds=5, save=True, filename="NN_RS.csv"):
 		start_time = time.time()
         # NOTE: continuous parameters should be given as a distribution for a proper random search
         # Distributions can be generated with scipy.stats module
         # For parameters that need to be explored in terms of order of magnitude loguniform distribution is recommended
 		estimator = KerasClassifier(self.new_model)
-		param_distr = kwargs
 		random_grid = RandomizedSearchCV(
-		    estimator, param_distr, n_iter=iterations, cv=folds, return_train_score=True)
+		    estimator, param_dist, n_iter=iterations, cv=folds, return_train_score=True)
 		grid_fitted = random_grid.fit(x, y)
 		means_test = grid_fitted.cv_results_['mean_test_score']
 		means_train = grid_fitted.cv_results_['mean_train_score']
@@ -164,16 +162,6 @@ class NeuralNetwork():
 			df = df.rename(index=str, columns={0: "mean Validation Score",1:"mean Train Score",2: "Parameters"})
 			df.to_csv("./result/"+filename)
 		return grid_fitted
-
-	def objective_function__definition_BO(self,x,y):
-		# Paramaters are passed as a dictionary
-		# #Closure is used for passing x and y to the objective function
-		def objective_function(params_dict):
-			estimator = KerasClassifier(self.new_model)
-			estimator.set_params(**params_dict)
-			score = cross_val_score(estimator,x,y).mean()
-			return {'loss': -score, 'status': STATUS_OK}
-		return objective_function
 	
 	def k_fold_param_func_minimize(self,x,y,n_splits=5):
 		#NOTE:Data should be given already scaled
@@ -199,15 +187,14 @@ class NeuralNetwork():
 			mean_loss = np.mean(k_fold_loss)
 			return {'loss': mean_loss, 'status': STATUS_OK}
 		return k_fold_param
-
-	def hp_tuning_BO(self, x, y, iterations=10, **kwargs):
+ 
+	def hp_tuning_BO(self, x, y, param_dist,iterations=10):
 		# As in randomized search parameters should be passed as distributions.
 		# For compatibility with HyperOpt is best to pass them using HyperOpt distributions
 		objective_function = self.k_fold_param_func_minimize(x,y)
 		trials = Trials()
-		param_space = kwargs
 		best_param = fmin(objective_function, 
-                      param_space, 
+                      param_dist, 
                       algo=tpe.suggest, 
                       max_evals=iterations, 
                       trials=trials,

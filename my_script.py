@@ -7,6 +7,7 @@ from keras.constraints import max_norm
 from NN import NeuralNetwork
 import gen_dataset
 from hyperopt import hp
+import scipy.stats as stats
 
 # def CSV_to_array(file_name, shuf=False, delimiter=',', comment='#'):
 #     dataframe = pd.read_csv(file_name, delimiter = delimiter, comment=comment)
@@ -34,5 +35,5 @@ trial_network.new_model(lr=0.1, mom=0.05, nesterov=True,
 
 # print(np.mean(history.history['val_loss']))
 #grid = trial_network.hp_tuning_GS(x_train, y_train, epochs=[500], batch_size=[32], lr=[0.1, 1], mom=[0.5])
-trials = trial_network.hp_tuning_BO(x_train, y_train, iterations=2, lr=hp.loguniform('lr', np.log(0.01), np.log(10)), mom=hp.uniform('mom', 0.0, 1.0))
+trials = trial_network.hp_tuning_BO(x_train, y_train, iterations=10, lr=hp.loguniform('lr', np.log(0.01), np.log(10)), mom=hp.uniform('mom', 0.0, 1.0))
 #trials = trial_network.hp_tuning_BO(x_train, y_train, epochs=50, batch_size=32, lr=0.1, mom=0.2)
