@@ -14,7 +14,7 @@ from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 
 
 class NeuralNetwork():
-	def __init__(self, architecture, input_dimension, output_dimension, epochs, batch_size, dropout_rate_input=0, dropout_rate_hidden=0):
+	def __init__(self, architecture, input_dimension, output_dimension, epochs, batch_size, classification=True, dropout_rate_input=0, dropout_rate_hidden=0):
 		self.architecture = architecture  # number of units in each layer
 		self.epochs = epochs
 		self.batch_size = batch_size
@@ -23,6 +23,7 @@ class NeuralNetwork():
 		self.last_model_compiled = Sequential()
 		self.input_dimension = input_dimension
 		self.output_dimension = output_dimension
+		self.classification = classification
 
 	def new_model(self, activation='relu', kernel_initializer='normal',
 				kernel_constraint=4.0, loss_function=keras.losses.mean_squared_error,

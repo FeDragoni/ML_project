@@ -13,6 +13,7 @@ import gen_dataset
 import csv
 import time
 import scipy.stats as stats
+from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 
 ##SVM Classifier
 
@@ -72,6 +73,13 @@ def hp_tuning_svm_RS(svm, x, y, param_dist, iterations=10, folds=5, save=True, f
 		df.to_csv("./result/"+filename)
 	print("Total elapsed time: %.3f" %(time.time()-start_time))
 	return grid_fitted
+
+def hp_func_generator_classification(x,y,n_splits=5):
+	def score_func (param_dist):
+		svc = svm.SVC(**param_dist)
+		score = cross_val_score(svc, x, y,cv=n_splits)
+		return {'loss': mean_loss, 'status': STATUS_OK}
+	return score_func
 
 param_dist = {'kernel': ['linear', 'rbf', poly],
               'C': stats.loguniform(1e-4, 1e0)}
