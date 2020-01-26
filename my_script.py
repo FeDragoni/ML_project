@@ -6,6 +6,7 @@ from sklearn.utils import shuffle
 from keras.constraints import max_norm
 from NN import NeuralNetwork
 import gen_dataset
+from hyperopt import hp
 
 # def CSV_to_array(file_name, shuf=False, delimiter=',', comment='#'):
 #     dataframe = pd.read_csv(file_name, delimiter = delimiter, comment=comment)
@@ -28,4 +29,5 @@ trial_network.new_model(lr=0.1, mom=0.05, nesterov=True, loss_function=keras.los
 #history, mee = trial_network.train_validate(x_train, y_train, x_test, y_test)
 
 #print(np.mean(history.history['val_loss']))
-grid = trial_network.hp_tuning_GS(x_train, y_train, epochs=[500], batch_size=[32], lr=[0.1, 1], mom=[0.5])
+#grid = trial_network.hp_tuning_GS(x_train, y_train, epochs=[500], batch_size=[32], lr=[0.1, 1], mom=[0.5])
+trials = trial_network.hp_tuning_BO(x_train, y_train, iterations=10, epochs=[500], batch_size=[32], lr=hp.loguniform('lr', np.log(0.01), np.log(1)), mom=hp.uniform('mom', 0.0, 1.0))
