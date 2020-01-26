@@ -15,19 +15,24 @@ from hyperopt import hp
 #         dataframe = dataframe.reset_index(drop=True)
 #     array = dataframe.values[:,1:]
 #     return array
-
-train_array = gen_dataset.CSV_to_array('./Monk_dataset/monks-1.train', shuf = True, delimiter = ' ')
-test_array = gen_dataset.CSV_to_array('./Monk_dataset/monks-1.test', shuf = True, delimiter = ' ')
-x_train = train_array[:,1:7]
-y_train = train_array[:,0]
-y_train = y_train.reshape(y_train.shape[0],1)
-x_test = test_array[:,1:7]
-y_test = test_array[:,0]
-y_test = y_test.reshape(y_test.shape[0],1)
-trial_network = NeuralNetwork([30, 30, 30], x_train.shape[1],y_train.shape[1],500,64, dropout_rate_hidden=0.5)
-trial_network.new_model(lr=0.1, mom=0.05, nesterov=True, loss_function=keras.losses.binary_crossentropy)
+#print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",np.random.RandomState(1))
+train_array = gen_dataset.CSV_to_array(
+	'./Monk_dataset/monks-1.train', shuf=True, delimiter=' ')
+test_array = gen_dataset.CSV_to_array(
+	'./Monk_dataset/monks-1.test', shuf=True, delimiter=' ')
+x_train = train_array[:, 1:7]
+y_train = train_array[:, 0]
+y_train = y_train.reshape(y_train.shape[0], 1)
+x_test = test_array[:, 1:7]
+y_test = test_array[:, 0]
+y_test = y_test.reshape(y_test.shape[0], 1)
+trial_network = NeuralNetwork(
+	[30, 30, 30], x_train.shape[1], y_train.shape[1], 1, 64)
+trial_network.new_model(lr=0.1, mom=0.05, nesterov=True,
+						loss_function=keras.losses.binary_crossentropy)
 #history, mee = trial_network.train_validate(x_train, y_train, x_test, y_test)
 
-#print(np.mean(history.history['val_loss']))
+# print(np.mean(history.history['val_loss']))
 #grid = trial_network.hp_tuning_GS(x_train, y_train, epochs=[500], batch_size=[32], lr=[0.1, 1], mom=[0.5])
-trials = trial_network.hp_tuning_BO(x_train, y_train, iterations=10, epochs=[500], batch_size=[32], lr=hp.loguniform('lr', np.log(0.01), np.log(1)), mom=hp.uniform('mom', 0.0, 1.0))
+trials = trial_network.hp_tuning_BO(x_train, y_train, iterations=2, lr=hp.loguniform('lr', np.log(0.01), np.log(10)), mom=hp.uniform('mom', 0.0, 1.0))
+#trials = trial_network.hp_tuning_BO(x_train, y_train, epochs=50, batch_size=32, lr=0.1, mom=0.2)
