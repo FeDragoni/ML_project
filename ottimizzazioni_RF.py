@@ -68,6 +68,8 @@ def hp_tuning_GS(x, y, estimator, folds=5, save=True, filename="NN_GS.csv", **kw
     # array_tot = array_kernel.append(array_C)
     array_tot = [array_features, array_samples_split , array_means]
     array_tot = zip(*array_tot)
+    
+    value_on_test =
     print (array_tot)
     print('Total elapsed time: %.3f' %(time.time()-start_time))
     if save:
