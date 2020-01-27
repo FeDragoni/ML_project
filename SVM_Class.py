@@ -16,7 +16,8 @@ import csv
 from sklearn.model_selection import GridSearchCV
 # import time
 import SVM_utils
-import SVM
+import Functions
+
 
 ##SVM Classifier
 
@@ -38,17 +39,31 @@ y_test = np.asarray(y_test,dtype=np.float64)
 print (y_train.shape)
 
 ###kernel = rbf
-parameters_rbf = {'gamma':(np.linspace(0.01,10,7)), 'C': (np.linspace(0.01,1000,7))}
+parameters_rbf = {'gamma':[0.01, 0.1, 1, 10, 100, 1000], 'C': [0.01, 0.1, 1, 10, 100, 1000] }
 ###kernel = poly
-parameters_poly = {'kernel':('linear', 'rbf'), 'C': [np.linspace(6, 40, 100)] }
+parameters_poly = {'gamma':[0.01, 0.1, 1, 10, 100, 1000], 'C': [0.01, 0.1, 1, 10, 100, 1000] , 'degree' : [1,2,3], 'coef0' : [1,2,3] }
 
 
 svc = svm.SVC()
 
 
-SVM.hp_tuning_svm_GS( svc, x_train, y_train,parameters_rbf, folds=5, save=True, filename="1.csv",)
+Functions.hp_tuning_svm_GS( svc, x_train, y_train,parameters_rbf, folds=5, save=True, filename="SVM_CLASS_GS.csv",)
+# Functions.hp_tuning_svm_RS( svc, x_train, y_train,parameters_rbf, folds=5, save=True, filename="SVM_CLASS_RS.csv",)
+# Functions.hp_tuning_svm_BO( svc, x_train, y_train,parameters_rbf, folds=5, save=True, filename="SVM_CLASS_BO.csv",)
+
 gh = pd.read_csv("./result/1.csv")
 print(gh)
+
+
+
+
+
+
+
+
+
+
+
 ##parametri
 # def hp_tuning_svm_GS(svm, x, y, **kwargs):
 #     start_time = time.time()

@@ -37,54 +37,59 @@ from sklearn.datasets import make_regression
 import csv
 from sklearn.model_selection import GridSearchCV
 import time
-import ottimizzazioni_RF
+# import ottimizzazioni_RF
+import Functions
+
 
 
 #################  levare le librerie che non servono a nulla
 #creo dataset
-def main():
-##creo dataset
-    train_array = gen_dataset.CSV_to_array('./Monk_dataset/monks-1.train', shuf = True, delimiter = ' ')
-    test_array = gen_dataset.CSV_to_array('./Monk_dataset/monks-1.test', shuf = True, delimiter = ' ')
-    x_train = train_array[:,1:7]
-    y_train = train_array[:,0]
-    y_train = y_train.reshape(y_train.shape[0],1)
-    x_test = test_array[:,1:7]
-    y_test = test_array[:,0]
-    y_test = y_test.reshape(y_test.shape[0],1)
 
-    x_train = np.asarray(x_train,dtype=np.float64)
-    y_train = np.asarray(y_train,dtype=np.float64)
+##creo dataset
+train_array = gen_dataset.CSV_to_array('./Monk_dataset/monks-1.train', shuf = True, delimiter = ' ')
+test_array = gen_dataset.CSV_to_array('./Monk_dataset/monks-1.test', shuf = True, delimiter = ' ')
+x_train = train_array[:,1:7]
+y_train = train_array[:,0]
+y_train = y_train.reshape(y_train.shape[0],1)
+x_test = test_array[:,1:7]
+y_test = test_array[:,0]
+y_test = y_test.reshape(y_test.shape[0],1)
+
+x_train = np.asarray(x_train,dtype=np.float64)
+y_train = np.asarray(y_train,dtype=np.float64)
 
     # Number of trees in random forest
-    n_estimators = [int(x) for x in np.linspace(start = 200, stop = 2000, num = 2)]
+n_estimators = [int(x) for x in np.linspace(start = 200, stop = 2000, num = 2)]
     # Number of features to consider at every split
-    max_features = ['auto', 'sqrt']
+max_features = ['auto', 'sqrt']
 
     # Maximum number of levels in tree
-    max_depth = [int(x) for x in np.linspace(10, 110, num = 2)]
-    max_depth.append(None)
+max_depth = [int(x) for x in np.linspace(10, 110, num = 2)]
+max_depth.append(None)
     # Minimum number of samples required to split a node
-    min_samples_split = [2, 5, 10]
+min_samples_split = [2, 5, 10]
     # Minimum number of samples required at each leaf node
-    min_samples_leaf = [1, 2, 4]
+min_samples_leaf = [1, 2, 4]
     # Method of selecting samples for training each tree
-    bootstrap = [True, False]# Create the random grid
-    random_grid = {#'n_estimators': n_estimators,
+bootstrap = [True, False]# Create the random grid
+parameters = {#'n_estimators': n_estimators,
                    'max_features': max_features,
                     #'max_depth': max_depth,
                    'min_samples_split': min_samples_split,
                     #'min_samples_leaf': min_samples_leaf,
                    'bootstrap': bootstrap}
-    print(random_grid)
+print(parameters)
 
-    rf = RandomForestClassifier()
-    print("ciao")
+rf = RandomForestClassifier()
+print("ciao")
 
-    ottimizzazioni_RF.hp_tuning_GS(x_train, y_train, rf, folds=5, save =True,   filename = "RF_GS.csv", **random_grid)
+# Functions.hp_tuning_svm_GS( rf, x_train, y_train,parameters, folds=5, save=True, filename="RF_CLASS_GS.csv")
+# Functions.hp_tuning_svm_RS( rf, x_train, y_train,parameters, folds=5, save=True, filename="RF_CLASS_RS.csv")
+Functions.hp_tuning_svm_BO( rf ,x_train ,y_train ,parameters ,iterations=10,save=True,filename='RF_CLASS_RS.csv')
+
+
+
+# ottimizzazioni_RF.hp_tuning_GS(x_train, y_train, rf, folds=5, save =True,   filename = "RF_GS.csv", **random_grid)
     ##questo è per valutare il BEST!!!
     # best_grid = grid_search.best_estimator_
     # grid_accuracy = evaluate(best_grid, test_features, test_labels)
-
-if __name__ == "__main__":
-   main()
