@@ -40,6 +40,11 @@ def readFile(name):
     df_numpy = df.values[:,1:]
     return df_numpy
 
+def divide(Data, size = 2):
+    X = Data[:, :-size]
+    Y = Data[:, -size:]
+    return X, Y
+
 def main():
     df = readFile('Scrivania/dataset/ML-CUP19-TR.csv')
     createDevAndTest(df)

@@ -1,0 +1,5 @@
+,mean Validation Error,Parameter_C,Kernel
+0,linear,1,0.6513333333333333
+1,rbf,1,0.8053333333333332
+2,linear,10,0.651
+3,rbf,10,0.7816666666666666
