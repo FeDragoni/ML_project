@@ -16,6 +16,7 @@ import csv
 from sklearn.model_selection import GridSearchCV
 # import time
 import SVM_utils
+import SVM
 
 ##SVM Classifier
 
@@ -37,7 +38,7 @@ y_test = np.asarray(y_test,dtype=np.float64)
 print (y_train.shape)
 
 ###kernel = rbf
-parameters_rbf = {'gamma':(np.linspace(0.01,1000,7)), 'C': (np.linspace(0.01,1000,7))}
+parameters_rbf = {'gamma':(np.linspace(0.01,10,7)), 'C': (np.linspace(0.01,1000,7))}
 ###kernel = poly
 parameters_poly = {'kernel':('linear', 'rbf'), 'C': [np.linspace(6, 40, 100)] }
 
@@ -45,8 +46,9 @@ parameters_poly = {'kernel':('linear', 'rbf'), 'C': [np.linspace(6, 40, 100)] }
 svc = svm.SVC()
 
 
-SVM_utils.hp_tuning_GS(x_train, y_train, svc, folds=5, save=True, filename="SVM_CLASS_GS.csv", **parameters_rbf)
-
+SVM.hp_tuning_svm_GS( svc, x_train, y_train,parameters_rbf, folds=5, save=True, filename="1.csv",)
+gh = pd.read_csv("./result/1.csv")
+print(gh)
 ##parametri
 # def hp_tuning_svm_GS(svm, x, y, **kwargs):
 #     start_time = time.time()
