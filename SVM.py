@@ -46,13 +46,19 @@ def hp_tuning_svm_GS(svm, x, y, param_grid, folds=5, save=True, filename="SVM_GS
 		print("%f (%f) with: %r" % (mean, stdev, param))
 	print('Best score obtained: %f \nwith param: %s' %(grid_fitted.best_score_, grid_fitted.best_params_))
 	if save:
-		df=pd.DataFrame(zip(means, params))
-		df = df.rename(index=str, columns={0: "Mean Validation Error", 1: "Parameters"})
-		df.to_csv(path_or_buf=("./result/"+filename),sep=',')
-	print("Total elapsed time: %.3f" %(time.time()-start_time))
+			dict_csv={}
+			dict_csv.update({'Score' : []})
+			for key in params[0]:
+				dict_csv.update({key : []})
+			for index,val in enumerate(params):
+				for key in val:
+					dict_csv[key].append((val[key]))
+				dict_csv['Score'].append(means_test[index])
+			df = pd.DataFrame.from_dict(dict_csv, orient='columns')
+			df.to_csv(path_or_buf=("./result/"+filename),sep=',', index_label='Index')
 	return grid_fitted
 
-def hp_tuning_svm_RS(svm, x, y, param_dist, iterations=10, folds=5, save=True, filename="SVM_RS.csv"):
+def hp_tuning_svm_RS(svm, x, y, param_dist, iterations=10, folds=5, save=True, filename="SVM_CLASS_RS.csv"):
 	# NOTE: continuous parameters should be given as a distribution for a proper random search
     # Distributions can be generated with scipy.stats module
     # For parameters that need to be explored in terms of order of magnitude loguniform distribution is recommended
@@ -61,17 +67,23 @@ def hp_tuning_svm_RS(svm, x, y, param_dist, iterations=10, folds=5, save=True, f
 	clf = RandomizedSearchCV(svm, param_dist, n_iter=iterations, cv=folds)
 	grid_fitted = clf.fit(x, y)
 	print("Time used for randomized search: %.3f" %(time.time()-start_time))
-	means = grid_fitted.cv_results_['mean_test_score']
+	means_test = grid_fitted.cv_results_['mean_test_score']
 	stds = grid_fitted.cv_results_['std_test_score']
 	params = grid_fitted.cv_results_['params']
-	for mean, stdev, param in zip(means, stds, params):
+	for mean, stdev, param in zip(means_test, stds, params):
 		print("%f (%f) with: %r" % (mean, stdev, param))
 	print('Best score obtained: %f \nwith param: %s' %(grid_fitted.best_score_, grid_fitted.best_params_))
 	if save:
-		df=pd.DataFrame(zip(means, params))
-		df = df.rename(index=str, columns={0: "Mean Validation Error", 1: "Parameters"})
-		df.to_csv(path_or_buf=("./result/"+filename),sep=',', index_label='Index')
-	print("Total elapsed time: %.3f" %(time.time()-start_time))
+			dict_csv={}
+			dict_csv.update({'Score' : []})
+			for key in params[0]:
+				dict_csv.update({key : []})
+			for index,val in enumerate(params):
+				for key in val:
+					dict_csv[key].append((val[key]))
+				dict_csv['Score'].append(means_test[index])
+			df = pd.DataFrame.from_dict(dict_csv, orient='columns')
+			df.to_csv(path_or_buf=("./result/"+filename),sep=',', index_label='Index')
 	return grid_fitted
 
 def bayesian_func_generator_classification(x,y,n_splits=5):
@@ -81,7 +93,7 @@ def bayesian_func_generator_classification(x,y,n_splits=5):
 		return {'loss': (-score), 'status': STATUS_OK}
 	return score_func
 
-def hp_tuning_svm_BO(svm,x,y,param_dist,iterations=10,):
+def hp_tuning_svm_BO(svm,x,y,param_dist,iterations=10,save=True,filename='SVM_CLASS_BO.csv'):
 	y=np.ravel(y,order='C')
 	objective_function = bayesian_func_generator_classification(x,y)
 	trials = Trials()
@@ -99,6 +111,17 @@ def hp_tuning_svm_BO(svm,x,y,param_dist,iterations=10,):
 		print('Score: %f   Param:%s' %(loss,val))
 	best_param_values = [x for x in best_param.values()]
 	print("Best loss obtained: %f\n with parameters: %s" % (-min(losses), best_param_values))
+	if save:
+			dict_csv={}
+			dict_csv.update({'Score' : []})
+			for key in vals[0]:
+				dict_csv.update({key : []})
+			for index,val in enumerate(vals):
+				for key in val:
+					dict_csv[key].append((val[key])[0])
+				dict_csv['Score'].append(losses[index])
+			df = pd.DataFrame.from_dict(dict_csv, orient='columns')
+			df.to_csv(path_or_buf=("./result/"+filename),sep=',', index_label='Index')
 	return trials
 
 
