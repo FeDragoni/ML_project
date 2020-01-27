@@ -33,6 +33,19 @@ y_train = np.asarray(y_train,dtype=np.float64)
 print (y_train.shape)
 
 ##parametri
+
+def evaluate_class(model, test_features, test_labels):
+    predictions = model.predict(test_features)
+    errors = abs(predictions - test_labels)
+    print (errors)
+    mape = 100 *( np.mean(errors ))
+    print (mape)
+    accuracy = 100 - mape
+    print('Model Performance')
+    print('Average Error: {:0.4f} degrees.'.format(np.mean(errors)))
+    print('Accuracy = {:0.2f}%.'.format(accuracy))
+    return accuracy
+
 def hp_tuning_svm_GS(svm, x, y, param_grid, folds=5, save=True, filename="SVM_GS.csv"):
 	start_time = time.time()
 	y=np.ravel(y,order='C')
@@ -52,27 +65,66 @@ def hp_tuning_svm_GS(svm, x, y, param_grid, folds=5, save=True, filename="SVM_GS
 	print("Total elapsed time: %.3f" %(time.time()-start_time))
 	return grid_fitted
 
-def hp_tuning_svm_RS(svm, x, y, param_dist, iterations=10, folds=5, save=True, filename="SVM_RS.csv"):
-	# NOTE: continuous parameters should be given as a distribution for a proper random search
-    # Distributions can be generated with scipy.stats module
-    # For parameters that need to be explored in terms of order of magnitude loguniform distribution is recommended
-	start_time = time.time()
-	y=np.ravel(y,order='C')
-	clf = RandomizedSearchCV(svm, param_dist, n_iter=iterations, cv=folds)
-	grid_fitted = clf.fit(x, y)
-	print("Time used for randomized search: %.3f" %(time.time()-start_time))
-	means = grid_fitted.cv_results_['mean_test_score']
-	stds = grid_fitted.cv_results_['std_test_score']
-	params = grid_fitted.cv_results_['params']
-	for mean, stdev, param in zip(means, stds, params):
-		print("%f (%f) with: %r" % (mean, stdev, param))
-	print('Best score obtained: %f \nwith param: %s' %(grid_fitted.best_score_, grid_fitted.best_params_))
-	if save:
-		df=pd.DataFrame(zip(means, params))
-		df = df.rename(index=str, columns={0: "Mean Validation Error", 1: "Parameters"})
-		df.to_csv("./result/"+filename)
-	print("Total elapsed time: %.3f" %(time.time()-start_time))
-	return grid_fitted
+# def hp_tuning_svm_RS(svm, x, y, param_dist, iterations=10, folds=5, save=True, filename="SVM_RS.csv"):
+# 	# NOTE: continuous parameters should be given as a distribution for a proper random search
+#     # Distributions can be generated with scipy.stats module
+#     # For parameters that need to be explored in terms of order of magnitude loguniform distribution is recommended
+# 	start_time = time.time()
+# 	y=np.ravel(y,order='C')
+# 	clf = RandomizedSearchCV(svm, param_dist, n_iter=iterations, cv=folds)
+# 	grid_fitted = clf.fit(x, y)
+# 	print("Time used for randomized search: %.3f" %(time.time()-start_time))
+# 	means = grid_fitted.cv_results_['mean_test_score']
+# 	stds = grid_fitted.cv_results_['std_test_score']
+# 	params = grid_fitted.cv_results_['params']
+# 	for mean, stdev, param in zip(means, stds, params):
+# 		print("%f (%f) with: %r" % (mean, stdev, param))
+# 	print('Best score obtained: %f \nwith param: %s' %(grid_fitted.best_score_, grid_fitted.best_params_))
+# 	if save:
+# 		df=pd.DataFrame(zip(means, params))
+# 		df = df.rename(index=str, columns={0: "Mean Validation Error", 1: "Parameters"})
+# 		df.to_csv("./result/"+filename)
+# 	print("Total elapsed time: %.3f" %(time.time()-start_time))
+# 	return grid_fitted
+
+def hp_tuning_svm_RS(x, y, estimator, folds=5, save=True, filename="SVM_RS.csv", **kwargs):
+    start_time=time.time()
+    # Parameters to be optimized can be choosen between the parameters of self.new_model and are
+    # given through **kwargs as --> parameter=[list of values to try for tuning]
+    # NOTE: batch_size and epochs can also be choosen
+    #The CSV file with the result is saved inside the result/ folder
+    print("ciao")
+    array_kernel = []
+    array_C = []
+    array_means = []
+    param = kwargs
+    print(param)
+    clf = RandomizedSearchCV(svm, param, n_iter=10, cv=folds)
+    print('\n\n\n\n')
+    grid_fitted = clf.fit(x, y)
+    means = grid_fitted.cv_results_['mean_test_score']
+    means_train = grid_fitted.cv_results_['mean_train_score']
+    stds = grid_fitted.cv_results_['std_test_score']
+    params = grid_fitted.cv_results_['params']
+    for mean, stdev, param in zip(means, stds, params):
+        print("%f (%f) with: %r" % (mean, stdev, param))
+        array_kernel = array_kernel + [param['kernel']]
+        array_C = array_C +  [param ['C']]
+        array_means = array_means +  [mean]
+    print('Best score obtained: %f \nwith param: %s' %(grid_fitted.best_score_, grid_fitted.best_params_))
+    # array_tot = array_kernel.append(array_C)
+    array_tot = [array_kernel, array_C , array_means]
+    array_tot = zip(*array_tot)
+    print (array_tot)
+    print('Total elapsed time: %.3f' %(time.time()-start_time))
+    if save:
+        df=pd.DataFrame(array_tot)
+        df = df.rename(index=str, columns={0: "mean Validation Error", 1: "Parameter_C", 2: "Kernel"})
+        df.to_csv("./result/"+filename)
+
+
+
+
 
 def bayesian_func_generator_classification(x,y,n_splits=5):
 	def score_func (param_dist):
@@ -81,14 +133,22 @@ def bayesian_func_generator_classification(x,y,n_splits=5):
 		return {'loss': (-score), 'status': STATUS_OK}
 	return score_func
 
+
+def bayesian_func_generator_REGRESSION(x,y,n_splits=5):
+	def score_func (param_dist):
+		svc = svm.SVC(**param_dist)
+		score = cross_val_score(svc, x, y,cv=n_splits).mean()
+		return {'loss': (score), 'status': STATUS_OK}
+	return score_func
+
 def hp_tuning_svm_BO(svm,x,y,param_dist,iterations=10,):
 	y=np.ravel(y,order='C')
 	objective_function = bayesian_func_generator_classification(x,y)
 	trials = Trials()
-	best_param = fmin(objective_function, 
-                  param_dist, 
-                  algo=tpe.suggest, 
-                  max_evals=iterations, 
+	best_param = fmin(objective_function,
+                  param_dist,
+                  algo=tpe.suggest,
+                  max_evals=iterations,
                   trials=trials,
                   rstate=np.random.RandomState(1)
 				  )
@@ -113,8 +173,5 @@ param_dist_BO = {
 }
 
 svc = svm.SVC()
-hp_tuning_svm_BO(svc,x_train,y_train,param_dist_BO,iterations=50)
-#hp_tuning_svm_RS(svc,x_train,y_train,param_dist_RS)
-
-
-
+# hp_tuning_svm_BO(svc,x_train,y_train,param_dist_BO,iterations=50)
+hp_tuning_svm_RS(svc,x_train,y_train,**param_dist_RS)

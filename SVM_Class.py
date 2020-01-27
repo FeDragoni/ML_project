@@ -36,13 +36,16 @@ y_test = np.asarray(y_test,dtype=np.float64)
 
 print (y_train.shape)
 
+###kernel = rbf
+parameters_rbf = {'gamma':(np.linspace(0.01,1000,7)), 'C': (np.linspace(0.01,1000,7))}
+###kernel = poly
+parameters_poly = {'kernel':('linear', 'rbf'), 'C': [np.linspace(6, 40, 100)] }
 
 
-parameters = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
 svc = svm.SVC()
 
 
-SVM_utils.hp_tuning_GS(x_train, y_train, svc, folds=5, save=True, filename="SVM_CLASS_GS.csv", **parameters)
+SVM_utils.hp_tuning_GS(x_train, y_train, svc, folds=5, save=True, filename="SVM_CLASS_GS.csv", **parameters_rbf)
 
 ##parametri
 # def hp_tuning_svm_GS(svm, x, y, **kwargs):
@@ -108,17 +111,7 @@ SVM_utils.hp_tuning_GS(x_train, y_train, svc, folds=5, save=True, filename="SVM_
 
 
 ##CAZZO DEVO ANCHE VALUTARE, per l'accuracy
-def evaluate_class(model, test_features, test_labels):
-    predictions = model.predict(test_features)
-    errors = abs(predictions - test_labels)
-    print (errors)
-    mape = 100 *( np.mean(errors ))
-    print (mape)
-    accuracy = 100 - mape
-    print('Model Performance')
-    print('Average Error: {:0.4f} degrees.'.format(np.mean(errors)))
-    print('Accuracy = {:0.2f}%.'.format(accuracy))
-    return accuracy
+
 
 # def from_param_to_model ()
 ################DA FARE

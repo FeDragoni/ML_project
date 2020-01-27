@@ -30,30 +30,32 @@ def hp_tuning_GS(x, y, estimator, folds=5, save=True, filename="SVM_CLASS_GS.csv
     # NOTE: batch_size and epochs can also be choosen
     #The CSV file with the result is saved inside the result/ folder
     print("ciao")
-    array_kernel = []
+    array_gamma = []
     array_C = []
+    array_gamma = []
     array_means = []
     param = kwargs
     print(param)
     clf = GridSearchCV(estimator, param)
     print('\n\n\n\n')
-    grid_fitted = clf.fit(x, y)
+    grid_fitted = clf.fit(x, np.ravel(y,order='C'))
     means = grid_fitted.cv_results_['mean_test_score']
     # means_train = grid_fitted.cv_results_['mean_train_score']
     stds = grid_fitted.cv_results_['std_test_score']
     params = grid_fitted.cv_results_['params']
     for mean, stdev, param in zip(means, stds, params):
         print("%f (%f) with: %r" % (mean, stdev, param))
-        array_kernel = array_kernel + [param['kernel']]
+        array_gamma = array_gamma + [param['gamma']]
         array_C = array_C +  [param ['C']]
+        # array_epsilon = array_gamma +  [param ['csi']]
         array_means = array_means +  [mean]
     print('Best score obtained: %f \nwith param: %s' %(grid_fitted.best_score_, grid_fitted.best_params_))
     # array_tot = array_kernel.append(array_C)
-    array_tot = [array_kernel, array_C , array_means]
+    array_tot = [ array_means, array_gamma, array_C]
     array_tot = zip(*array_tot)
     print (array_tot)
     print('Total elapsed time: %.3f' %(time.time()-start_time))
     if save:
         df=pd.DataFrame(array_tot)
-        df = df.rename(index=str, columns={0: "mean Validation Error", 1: "Parameter_C", 2: "Kernel"})
+        df = df.rename(index=str, columns={0: "mean Validation Error", 1: "gamma", 2: "C"})
         df.to_csv("./result/"+filename)

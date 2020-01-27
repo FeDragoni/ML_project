@@ -56,7 +56,7 @@ def hp_tuning_GS(x, y, estimator, folds=5, save=True, filename="NN_GS.csv", **kw
     print('\n\n\n\n')
     grid_fitted = clf.fit(x, np.ravel(y,order='C'))
     means = grid_fitted.cv_results_['mean_test_score']
-    # means_train = grid_fitted.cv_results_['mean_train_score']
+    means_train = grid_fitted.cv_results_['mean_train_score']
     stds = grid_fitted.cv_results_['std_test_score']
     params = grid_fitted.cv_results_['params']
     for mean, stdev, param in zip(means, stds, params):
@@ -68,7 +68,7 @@ def hp_tuning_GS(x, y, estimator, folds=5, save=True, filename="NN_GS.csv", **kw
     # array_tot = array_kernel.append(array_C)
     array_tot = [array_features, array_samples_split , array_means]
     array_tot = zip(*array_tot)
-    
+
     value_on_test =
     print (array_tot)
     print('Total elapsed time: %.3f' %(time.time()-start_time))
