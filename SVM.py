@@ -48,7 +48,7 @@ def hp_tuning_svm_GS(svm, x, y, param_grid, folds=5, save=True, filename="SVM_GS
 	if save:
 		df=pd.DataFrame(zip(means, params))
 		df = df.rename(index=str, columns={0: "Mean Validation Error", 1: "Parameters"})
-		df.to_csv("./result/"+filename)
+		df.to_csv(path_or_buf=("./result/"+filename),sep=',')
 	print("Total elapsed time: %.3f" %(time.time()-start_time))
 	return grid_fitted
 
@@ -70,7 +70,7 @@ def hp_tuning_svm_RS(svm, x, y, param_dist, iterations=10, folds=5, save=True, f
 	if save:
 		df=pd.DataFrame(zip(means, params))
 		df = df.rename(index=str, columns={0: "Mean Validation Error", 1: "Parameters"})
-		df.to_csv("./result/"+filename)
+		df.to_csv(path_or_buf=("./result/"+filename),sep=',', index_label='Index')
 	print("Total elapsed time: %.3f" %(time.time()-start_time))
 	return grid_fitted
 
@@ -113,8 +113,8 @@ param_dist_BO = {
 }
 
 svc = svm.SVC()
-hp_tuning_svm_BO(svc,x_train,y_train,param_dist_BO,iterations=50)
-#hp_tuning_svm_RS(svc,x_train,y_train,param_dist_RS)
+#hp_tuning_svm_BO(svc,x_train,y_train,param_dist_BO,iterations=50)
+hp_tuning_svm_RS(svc,x_train,y_train,param_dist_RS)
 
 
 
