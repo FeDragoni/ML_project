@@ -24,6 +24,7 @@ dati_tot = gen_dataset.readFile("./dataset/OUR_TRAIN.csv")
 x_train, y_train = gen_dataset.divide(dati_tot)
 print (np.shape(y_train))
 
+parameters_rbf = {'gamma':[np.linspace(0.01,1000,7)], 'C': [np.linspace(0.01,1000,7)] , 'gamma' : [0.1, 0.01] }
 
 param_grid = {'estimator__C':[10, 50]}
               #'estimator__kernel':('linear', 'rbf')}

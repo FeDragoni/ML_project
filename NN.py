@@ -133,11 +133,16 @@ class NeuralNetwork():
               (grid_fitted.best_score_, grid_fitted.best_params_))
 		print('Total elapsed time: %.3f' % (time.time()-start_time))
 		if save:
-			df = pd.DataFrame(
-                zip(means_test, means_train, means_train, params))
-			df = df.rename(index=str, columns={
-						0: "mean Validation Score", 1: "mean Train Score", 2: "Parameters"})
-			df.to_csv("./result/"+filename)
+			dict_csv={}
+			dict_csv.update({'Score' : []})
+			for key in params[0]:
+				dict_csv.update({key : []})
+			for index,val in enumerate(params):
+				for key in val:
+					dict_csv[key].append((val[key]))
+				dict_csv['Score'].append(means_test[index])
+			df = pd.DataFrame.from_dict(dict_csv, orient='columns')
+			df.to_csv(path_or_buf=("./result/"+filename),sep=',', index_label='Index')
 		return grid_fitted
 
 	def hp_tuning_RS(self, x, y, param_dist, iterations=10, folds=5, save=True, filename="NN_RS.csv"):
@@ -159,9 +164,16 @@ class NeuralNetwork():
 		      (grid_fitted.best_score_, grid_fitted.best_params_))
 		print('Total elapsed time: %.3f' % (time.time()-start_time))
 		if save:
-			df = pd.DataFrame(zip(means_test,means_train,means_train,params))
-			df = df.rename(index=str, columns={0: "mean Validation Score",1:"mean Train Score",2: "Parameters"})
-			df.to_csv("./result/"+filename)
+			dict_csv={}
+			dict_csv.update({'Score' : []})
+			for key in params[0]:
+				dict_csv.update({key : []})
+			for index,val in enumerate(params):
+				for key in val:
+					dict_csv[key].append((val[key]))
+				dict_csv['Score'].append(means_test[index])
+			df = pd.DataFrame.from_dict(dict_csv, orient='columns')
+			df.to_csv(path_or_buf=("./result/"+filename),sep=',', index_label='Index')
 		return grid_fitted
 	
 	def k_fold_param_func_minimize(self,x,y,n_splits=5):
@@ -189,7 +201,7 @@ class NeuralNetwork():
 			return {'loss': mean_loss, 'status': STATUS_OK}
 		return k_fold_param
  
-	def hp_tuning_BO(self, x, y, param_dist,iterations=10):
+	def hp_tuning_BO(self, x, y, param_dist,iterations=10, save=True, filename='"NN_BO.csv"'):
 		# As in randomized search parameters should be passed as distributions.
 		# For compatibility with HyperOpt is best to pass them using HyperOpt distributions
 		objective_function = self.k_fold_param_func_minimize(x,y)
@@ -208,6 +220,19 @@ class NeuralNetwork():
 			print('Loss: %f   Param:%s' %(loss,val))
 		best_param_values = [x for x in best_param.values()]
 		print("Best loss obtained: %f\n with parameters: %s" % (min(losses), best_param_values))
+		
+		if save:
+			dict_csv={}
+			dict_csv.update({'Score' : []})
+			for key in vals[0]:
+				dict_csv.update({key : []})
+			for index,val in enumerate(vals):
+				for key in val:
+					dict_csv[key].append((val[key])[0])
+				dict_csv['Score'].append(losses[index])
+			df = pd.DataFrame.from_dict(dict_csv, orient='columns')
+			df.to_csv(path_or_buf=("./result/"+filename),sep=',', index_label='Index')
+
 		return trials
 
 def main():
