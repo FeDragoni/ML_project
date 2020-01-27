@@ -74,18 +74,47 @@ def hp_tuning_svm_RS(svm, x, y, param_dist, iterations=10, folds=5, save=True, f
 	print("Total elapsed time: %.3f" %(time.time()-start_time))
 	return grid_fitted
 
-def hp_func_generator_classification(x,y,n_splits=5):
+def bayesian_func_generator_classification(x,y,n_splits=5):
 	def score_func (param_dist):
 		svc = svm.SVC(**param_dist)
-		score = cross_val_score(svc, x, y,cv=n_splits)
-		return {'loss': mean_loss, 'status': STATUS_OK}
+		score = cross_val_score(svc, x, y,cv=n_splits).mean()
+		return {'loss': (-score), 'status': STATUS_OK}
 	return score_func
 
-param_dist = {'kernel': ['linear', 'rbf', poly],
+def hp_tuning_svm_BO(svm,x,y,param_dist,iterations=10,):
+	y=np.ravel(y,order='C')
+	objective_function = bayesian_func_generator_classification(x,y)
+	trials = Trials()
+	best_param = fmin(objective_function, 
+                  param_dist, 
+                  algo=tpe.suggest, 
+                  max_evals=iterations, 
+                  trials=trials,
+                  rstate=np.random.RandomState(1)
+				  )
+	best_param_values = [val for val in best_param.values()]
+	losses = [x['result']['loss'] for x in trials.trials]
+	vals = [x['misc']['vals']for x in trials.trials]
+	for val, loss in zip(vals,losses):
+		print('Score: %f   Param:%s' %(loss,val))
+	best_param_values = [x for x in best_param.values()]
+	print("Best loss obtained: %f\n with parameters: %s" % (-min(losses), best_param_values))
+	return trials
+
+
+param_dist_RS = {'kernel': ['linear', 'rbf', 'poly'],
               'C': stats.loguniform(1e-4, 1e0)}
 
+param_dist_BO = {
+    'C': hp.loguniform('C', np.log(1e-4), np.log(1e2)),
+    #'max_depth': scope.int(hp.quniform('max_depth', 5, 15, 1)),
+    'kernel': hp.choice('kernel', ['linear', 'rbf', 'poly'])
+    #'reg_lambda': hp.uniform('reg_lambda', 0.0, 1.0)
+}
+
 svc = svm.SVC()
-hp_tuning_svm_RS(svc,x_train,y_train,param_dist)
+hp_tuning_svm_BO(svc,x_train,y_train,param_dist_BO,iterations=50)
+#hp_tuning_svm_RS(svc,x_train,y_train,param_dist_RS)
 
 
 
