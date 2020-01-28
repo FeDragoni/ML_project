@@ -90,9 +90,9 @@ param_space_BO={
 	'max_features': hp.choice('max_features', ['auto', 'sqrt'])
 }
 
-Functions.hp_tuning_svm_GS( rf, x_train, y_train,parameters, folds=5, save=True, filename="RF_CLASS_GS.csv")
+# Functions.hp_tuning_svm_GS( rf, x_train, y_train,parameters, folds=5, save=True, filename="RF_CLASS_GS.csv")
 # Functions.hp_tuning_svm_RS( rf, x_train, y_train,parameters, folds=5, save=True, filename="RF_CLASS_RS.csv")
-Functions.hp_tuning_svm_BO( rf ,x_train ,y_train ,param_space_BO ,iterations=10,save=True,filename='RF_CLASS_RS.csv')
+Functions.hp_tuning_BO( RandomForestClassifier ,x_train ,y_train ,param_space_BO ,iterations=10,save=True,filename='RF_CLASS_BO.csv')
 
 
 

@@ -39,10 +39,11 @@ param_grid_POLY = {'estimator__C':[0.01] ,
               }
 ###CON KERNEL=POLY BISOGNA AGGIUNGERE UN ARRAY NEI VARI OTTTIMIZZATORI DI HP ........ CAZZOO
 gb = svm.SVR()
+# gb_multi = MultiOutputRegressor(gb)
 
-# Functions.hp_tuning_svm_regr_GS(gb, x_train, y_train,param_grid )
+Functions.hp_tuning_svm_regr_GS(gb, x_train, y_train,param_grid_RBF )
 # Functions.hp_tuning_svm_regr_RS(gb, x_train, y_train,param_grid )
-Functions.hp_tuning_svm_BO(gb, x_train, y_train,param_grid )
+# Functions.hp_tuning_svm_BO(gb, x_train, y_train,param_grid )
 
 
 

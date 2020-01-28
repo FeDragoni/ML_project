@@ -28,15 +28,15 @@ x_test = test_array[:, 1:7]
 y_test = test_array[:, 0]
 y_test = y_test.reshape(y_test.shape[0], 1)
 trial_network = NeuralNetwork(
-	[30, 30, 30], x_train.shape[1], y_train.shape[1], 1, 64,dropout_rate_hidden=0.5)
+	[30, 30, 30], x_train.shape[1], y_train.shape[1], 20, 64,dropout_rate_hidden=0.5)
 trial_network.new_model(lr=0.1, mom=0.05, nesterov=True,
 						loss_function=keras.losses.binary_crossentropy)
-#history, mee = trial_network.train_validate(x_train, y_train, x_test, y_test)
-
+history, mee = trial_network.train_validate(x_train, y_train, x_test, y_test)
+trial_network.show_result(history)
 # print(np.mean(history.history['val_loss']))
 param_grid = {'epochs':[10], 'batch_size':[32], 'lr':[0.1, 1], 'mom':[0.5]}
 param_dist={'epochs':[10],'batch_size':[32],'lr':[0.5]}
 param_space = {'lr':hp.loguniform('lr', np.log(0.01), np.log(10)), 'mom':hp.uniform('mom', 0.0, 1.0)}
-grid = trial_network.hp_tuning_GS(x_train, y_train, param_grid,folds=2)
+# grid = trial_network.hp_tuning_GS(x_train, y_train, param_grid,folds=2)
 #grid = trial_network.hp_tuning_RS(x_train, y_train, param_dist,folds=2,iterations=3)
 #trials = trial_network.hp_tuning_BO(x_train, y_train, param_space, iterations=3)

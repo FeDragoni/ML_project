@@ -107,12 +107,12 @@ def hp_tuning_svm_regr_GS(svr, x_train, y_train, param_grid, folds=5, save=True,
     # clf = GridSearchCV(gs_svr, param)
     print('\n\n\n\n')
 
-    gs = GridSearchCV(MultiOutputRegressor(svr), param_grid=param_grid)
+    gs = GridSearchCV(MultiOutputRegressor(svr), param_grid=param_grid, return_train_score=True)
     gs_svr = gs.fit(x_train,y_train)
     grid_fitted = gs_svr
     # grid_fitted = clf.fit(x, y)
     means = grid_fitted.cv_results_['mean_test_score']
-    # means_train = grid_fitted.cv_results_['mean_train_score']
+    means_train = grid_fitted.cv_results_['mean_train_score']
     stds = grid_fitted.cv_results_['std_test_score']
     params = grid_fitted.cv_results_['params']
     for mean, stdev, param in zip(means, stds, params):
@@ -179,7 +179,7 @@ def hp_tuning_svm_regr_RS(svr, x_train, y_train, param_grid, folds=5, save=True,
 def bayesian_func_generator_classification(estimator_func,x,y,n_splits=5):
 	def score_func (param_dist):
 		estimator = estimator_func(**param_dist)
-		score = cross_val_score(svc, x, y,cv=n_splits).mean()
+		score = cross_val_score(estimator, x, y,cv=n_splits).mean()
 		return {'loss': (-score), 'status': STATUS_OK}
 	return score_func
 
@@ -231,49 +231,49 @@ param_dist_BO = {
 #hp_tuning_RS(svc,x_train,y_train,param_dist_RS)
 
 ########### MI DA PROBLEMI DI IDENTAZIONE NON SO PERCHÈ, VOGLIO MORIRE AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-# def hp_tuning_rf_regr_GS(svr, x_train, y_train, param_grid, folds=5, save=True, filename="RF_REGRESSOR_GS.csv"):
-#     start_time=time.time()
-#
-#     # Parameters to be optimized can be choosen between the parameters of self.new_model and are
-#     # given through **kwargs as --> parameter=[list of values to try for tuning]
-#     # NOTE: batch_size and epochs can also be choosen
-#     #The CSV file with the result is saved inside the result/ folder
-#     print("ciao")
-#     array_n_estimators = []
-#     array_max_features = []
-#     array_max_depth = []
-#     array_min_samples_split = []
-#     array_min_samples_leaf = []
-#     # param = kwargs
-#     # print(param)
-#     # clf = GridSearchCV(gs_svr, param)
-#     print('\n\n\n\n')
-#
-#     gs = GridSearchCV(MultiOutputRegressor(svr), param_grid=param_grid)
-#     gs_svr = gs.fit(x_train,y_train)
-#     grid_fitted = gs_svr
-#     # grid_fitted = clf.fit(x, y)
-#     means = grid_fitted.cv_results_['mean_test_score']
-#     # means_train = grid_fitted.cv_results_['mean_train_score']
-#     stds = grid_fitted.cv_results_['std_test_score']
-#     params = grid_fitted.cv_results_['params']
-#     for mean, stdev, param in zip(means, stds, params):
-#
-# 	    print("%f (%f) with: %r" % (mean, stdev, param))
-#         # array_n_estimators = array_n_estimators + [param['n_estimators']]
-#         # array_max_features = array_max_features + [param['max_features'] ]
-#         # array_max_depth = array_max_depth +  [param ['max_depth']]
-# 	    array_min_samples_split = array_min_samples_split + [param ['min_samples_split']]
-# 		# array_min_samples_leaf = array_min_samples_leaf +  [param ['min_samples_leaf']]
-# 		array_means = array_means + [mean]
-#     print('Best score obtained: %f \nwith param: %s' %(grid_fitted.best_score_, grid_fitted.best_params_))
-#     # array_tot = array_kernel.append(array_C)
-#     array_tot = [ array_max_features , array_min_samples_split,  array_means]
-#     array_tot = zip(*array_tot)
-#     print (array_tot)
-#     print('Total elapsed time: %.3f' %(time.time()-start_time))
-#     df=pd.DataFrame(array_tot)
-#     df = df.rename(index=str, columns={0: "Max_features", 1: "Min_Samples", 2: "Mean_Val_Error" })
-#     df.to_csv("./result/RF_REGRESSOR_GS.csv")
-#     gh = pd.read_csv("./result/RF_REGRESSOR_GS.csv")
-#     print(gh)
+def hp_tuning_rf_regr_GS(svr, x_train, y_train, param_grid, folds=5, save=True, filename="RF_REGRESSOR_GS.csv"):
+    start_time=time.time()
+
+    # Parameters to be optimized can be choosen between the parameters of self.new_model and are
+    # given through **kwargs as --> parameter=[list of values to try for tuning]
+    # NOTE: batch_size and epochs can also be choosen
+    #The CSV file with the result is saved inside the result/ folder
+    print("ciao")
+    array_n_estimators = []
+    array_max_features = []
+    array_max_depth = []
+    array_min_samples_split = []
+    array_min_samples_leaf = []
+    # param = kwargs
+    # print(param)
+    # clf = GridSearchCV(gs_svr, param)
+    print('\n\n\n\n')
+
+    gs = GridSearchCV(MultiOutputRegressor(svr), param_grid=param_grid)
+    gs_svr = gs.fit(x_train,y_train)
+    grid_fitted = gs_svr
+    # grid_fitted = clf.fit(x, y)
+    means = grid_fitted.cv_results_['mean_test_score']
+    # means_train = grid_fitted.cv_results_['mean_train_score']
+    stds = grid_fitted.cv_results_['std_test_score']
+    params = grid_fitted.cv_results_['params']
+    for mean, stdev, param in zip(means, stds, params):
+
+        print("%f (%f) with: %r" % (mean, stdev, param))
+        # array_n_estimators = array_n_estimators + [param['n_estimators']]
+        # array_max_features = array_max_features + [param['max_features'] ]
+        # array_max_depth = array_max_depth +  [param ['max_depth']]
+        array_min_samples_split = array_min_samples_split + [param ['min_samples_split']]
+		# array_min_samples_leaf = array_min_samples_leaf +  [param ['min_samples_leaf']]
+        array_means = array_means + [mean]
+    print('Best score obtained: %f \nwith param: %s' %(grid_fitted.best_score_, grid_fitted.best_params_))
+    # array_tot = array_kernel.append(array_C)
+    array_tot = [ array_max_features , array_min_samples_split,  array_means]
+    array_tot = zip(*array_tot)
+    print (array_tot)
+    print('Total elapsed time: %.3f' %(time.time()-start_time))
+    df=pd.DataFrame(array_tot)
+    df = df.rename(index=str, columns={0: "Max_features", 1: "Min_Samples", 2: "Mean_Val_Error" })
+    df.to_csv("./result/RF_REGRESSOR_GS.csv")
+    gh = pd.read_csv("./result/RF_REGRESSOR_GS.csv")
+    print(gh)

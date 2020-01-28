@@ -75,18 +75,19 @@ rf = RandomForestRegressor()
 parameters = {#'estimator__n_estimators': n_estimators,
                    'estimator__max_features': max_features,
                     #'estimator__max_depth': max_depth,
-                   'min_samples_split': min_samples_split,
+                   'estimator__min_samples_split': min_samples_split,
                     #'estimator__min_samples_leaf': min_samples_leaf,
                    'estimator__bootstrap': bootstrap}
 # param_grid = {'estimator__C':[10, 50]}
                   #'estimator__kernel':('linear', 'rbf')}
-rf_multi = MultiOutputRegressor(rf)
+# rf_multi = MultiOutputRegressor(rf)
 
-Functions.hp_tuning_rf_GS( rf_multi, x_train, y_train,parameters, folds=5, save=True, filename="RF_REGR_GS.csv")
-Functions.hp_tuning_rf_RS( rf_multi, x_train, y_train,parameters, folds=5, save=True, filename="RF_REGR_RS.csv")
-Functions.hp_tuning_rf_BO( rf_multi, x_train, y_train,parameters, folds=5, save=True, filename="RF_REGR_BO.csv")
+Functions.hp_tuning_rf_regr_GS( rf, x_train, y_train,parameters, folds=5, save=True, filename="RF_REGR_GS.csv")
+# Functions.hp_tuning_rf_RS( rf, x_train, y_train,parameters, folds=5, save=True, filename="RF_REGR_RS.csv")
+# Functions.hp_tuning_rf_BO( rf, x_train, y_train,parameters, folds=5, save=True, filename="RF_REGR_BO.csv")
 
 
+# Functions.hp_tuning_GS( rf_multi, x_train, y_train,parameters, folds=5, save=True, filename="RF_REGR_GS.csv")
 
 
 
