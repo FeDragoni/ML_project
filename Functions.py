@@ -260,7 +260,12 @@ def hp_tuning_rf_regr_GS(svr, x_train, y_train, param_grid, folds=5, save=True, 
     print(gh)
 
 
-
+def evaluate (x_test, y_test , estimator):
+	y_pred = estimator.predict(x_test)
+	mean_euclidean_error = 0
+	for y_pred, y_test in zip(y_pred, y_test):
+		mean_euclidean_error += norm(y_pred - y_test)
+	mean_euclidean_error = mean_euclidean_error/len(y_val)
 	#
 	# ##creo dataset
 	# # def main():

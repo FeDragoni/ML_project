@@ -44,17 +44,17 @@ print (y_train.shape)
 ###kernel = rbf
 parameters_rbf = {'gamma':[0.01, 0.1, 1, 10, 100, 1000], 'C': [0.01, 0.1, 1, 10, 100, 1000] }
 # np.linspace(0.01,1000,7)
-parameters_rbf_2 = {'gamma':[x for x in np.linspace(start = 0.01, stop = 1, num = 1000)],
-                    'C':[x for x in np.linspace(start = 20, stop = 1000, num = 1000)]}
+parameters_rbf_2 = {'gamma':[x for x in np.linspace(start = 0.01, stop = 1, num = 100)],
+                    'C':[x for x in np.linspace(start = 20, stop = 1000, num = 100)]}
 
 
 ###kernel = poly
 parameters_poly = {'gamma':[0.01, 0.1, 1, 10, 100, 1000], 'C': [0.01, 0.1, 1, 10, 100, 1000] , 'degree' : [1,2,3], 'coef0' : [1,2,3] }
 
 param_dist_BO = {
-    # 'gamma': hp.quniform('gamma', 0.001, 10 , 1),
-    'gamma': (hp.quniform('gamma', 0.01, 0.07, 0.001)),
-    'C': hp.quniform('C', 280, 340, 1)
+    'gamma': hp.uniform('gamma', 0.01, 0.1),
+    # 'gamma': hp.loguniform('gamma', np.log(0.01), np.log(0.09)),
+    'C': hp.uniform('C',  300, 330)
     #'reg_lambda': hp.uniform('reg_lambda', 0.0, 1.0)
 }
 
@@ -62,9 +62,18 @@ param_dist_BO = {
 svc = svm.SVC()
 
 
-# Functions.hp_tuning_GS( svc, x_train, y_train,parameters_rbf_2, folds=5, save=True, filename="SVM_CLASS_GS_rbf_2.csv",)
-# Functions.hp_tuning_svm_RS( svc, x_train, y_train,parameters_rbf, folds=5, save=True, filename="SVM_CLASS_RS.csv",)
-Functions.hp_tuning_BO( svm.SVC, x_train, y_train, param_dist_BO , save=True, filename="SVM_CLASS_BO.csv",)
+# grid_fitted = Functions.hp_tuning_GS( svc, x_train, y_train,parameters_rbf_2, folds=5, save=True, filename="SVM_CLASS_GS_rbf_2.csv",)
+Functions.hp_tuning_RS( svc, x_train, y_train,  parameters_rbf_2, iterations=100, folds=5, save=True, filename="SVM_CLASS_RS_rbf.csv",)
+# Functions.hp_tuning_BO( svm.SVC, x_train, y_train, param_dist_BO ,iterations=1000, save=True, filename="SVM_CLASS_BO.csv",)
+# best_one = svm.SVC(**grid_fitted.best_params_)
+
+# best_one.score (x_test, y_test)
+
+# best_one = svm.SVC(C = 316.969696969697, gamma = 0.060000000000000005)
+# best_one.fit (x_train, np.ravel(y_train,order='C'))
+#
+# print (best_one.score (x_test, y_test))
+
 
 # gh = pd.read_csv("./result/1.csv")
 # print(gh)
