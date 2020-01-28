@@ -15,8 +15,9 @@ import gen_dataset
 import csv
 from sklearn.model_selection import GridSearchCV
 # import time
-import SVM_utils
 import Functions
+import scipy.stats as stats
+from hyperopt import fmin, tpe, hp, STATUS_OK, Trials, pyll
 
 
 ##SVM Classifier
@@ -36,23 +37,37 @@ y_train = np.asarray(y_train,dtype=np.float64)
 x_test = np.asarray(x_test,dtype=np.float64)
 y_test = np.asarray(y_test,dtype=np.float64)
 
+
+
 print (y_train.shape)
 
 ###kernel = rbf
 parameters_rbf = {'gamma':[0.01, 0.1, 1, 10, 100, 1000], 'C': [0.01, 0.1, 1, 10, 100, 1000] }
+# np.linspace(0.01,1000,7)
+parameters_rbf_2 = {'gamma':[x for x in np.linspace(start = 0.01, stop = 1, num = 1000)],
+                    'C':[x for x in np.linspace(start = 20, stop = 1000, num = 1000)]}
+
+
 ###kernel = poly
 parameters_poly = {'gamma':[0.01, 0.1, 1, 10, 100, 1000], 'C': [0.01, 0.1, 1, 10, 100, 1000] , 'degree' : [1,2,3], 'coef0' : [1,2,3] }
+
+param_dist_BO = {
+    # 'gamma': hp.quniform('gamma', 0.001, 10 , 1),
+    'gamma': (hp.quniform('gamma', 0.01, 0.07, 0.001)),
+    'C': hp.quniform('C', 280, 340, 1)
+    #'reg_lambda': hp.uniform('reg_lambda', 0.0, 1.0)
+}
 
 
 svc = svm.SVC()
 
 
-Functions.hp_tuning_svm_GS( svc, x_train, y_train,parameters_rbf, folds=5, save=True, filename="SVM_CLASS_GS.csv",)
+# Functions.hp_tuning_GS( svc, x_train, y_train,parameters_rbf_2, folds=5, save=True, filename="SVM_CLASS_GS_rbf_2.csv",)
 # Functions.hp_tuning_svm_RS( svc, x_train, y_train,parameters_rbf, folds=5, save=True, filename="SVM_CLASS_RS.csv",)
-# Functions.hp_tuning_svm_BO( svc, x_train, y_train,parameters_rbf, folds=5, save=True, filename="SVM_CLASS_BO.csv",)
+Functions.hp_tuning_BO( svm.SVC, x_train, y_train, param_dist_BO , save=True, filename="SVM_CLASS_BO.csv",)
 
-gh = pd.read_csv("./result/1.csv")
-print(gh)
+# gh = pd.read_csv("./result/1.csv")
+# print(gh)
 
 
 

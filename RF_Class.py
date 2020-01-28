@@ -60,6 +60,10 @@ y_test = y_test.reshape(y_test.shape[0],1)
 x_train = np.asarray(x_train,dtype=np.float64)
 y_train = np.asarray(y_train,dtype=np.float64)
 
+scaler = StandardScaler()
+scaler.fit(x_train)
+x_train = scaler.transform (x_train)
+
     # Number of trees in random forest
 n_estimators = [int(x) for x in np.linspace(start = 200, stop = 2000, num = 2)]
     # Number of features to consider at every split

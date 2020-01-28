@@ -49,6 +49,9 @@ import Functions
 dati_tot = gen_dataset.readFile("./dataset/OUR_TRAIN.csv")
 x_train, y_train = gen_dataset.divide(dati_tot)
 
+scaler = StandardScaler()
+scaler.fit(x_train)
+x_train = scaler.transform (x_train)
 
     # Number of trees in random forest
 n_estimators = [int(x) for x in np.linspace(start = 200, stop = 2000, num = 2)]

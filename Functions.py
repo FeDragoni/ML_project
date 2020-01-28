@@ -17,25 +17,6 @@ from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 
 ##SVM Classifier
 
-##creo dataset
-def main():
-	train_array = gen_dataset.CSV_to_array('./Monk_dataset/monks-1.train', shuf = True, delimiter = ' ')
-	test_array = gen_dataset.CSV_to_array('./Monk_dataset/monks-1.test', shuf = True, delimiter = ' ')
-	x_train = train_array[:,1:7]
-	y_train = train_array[:,0]
-	y_train = y_train.reshape(y_train.shape[0],1)
-	x_test = test_array[:,1:7]
-	y_test = test_array[:,0]
-	y_test = y_test.reshape(y_test.shape[0],1)
-
-	x_train = np.asarray(x_train,dtype=np.float64)
-	y_train = np.asarray(y_train,dtype=np.float64)
-
-	print (y_train.shape)
-
-if __name__ == '__main__':
-    main()
-
 ##parametri
 def hp_tuning_GS(estimator, x, y, param_grid, folds=5, save=True, filename="SVM_GS.csv"):
 	start_time = time.time()
@@ -277,3 +258,25 @@ def hp_tuning_rf_regr_GS(svr, x_train, y_train, param_grid, folds=5, save=True, 
     df.to_csv("./result/RF_REGRESSOR_GS.csv")
     gh = pd.read_csv("./result/RF_REGRESSOR_GS.csv")
     print(gh)
+
+
+
+	#
+	# ##creo dataset
+	# # def main():
+	# # 	train_array = gen_dataset.CSV_to_array('./Monk_dataset/monks-1.train', shuf = True, delimiter = ' ')
+	# # 	test_array = gen_dataset.CSV_to_array('./Monk_dataset/monks-1.test', shuf = True, delimiter = ' ')
+	# # 	x_train = train_array[:,1:7]
+	# # 	y_train = train_array[:,0]
+	# # 	y_train = y_train.reshape(y_train.shape[0],1)
+	# # 	x_test = test_array[:,1:7]
+	# # 	y_test = test_array[:,0]
+	# # 	y_test = y_test.reshape(y_test.shape[0],1)
+	# #
+	# # 	x_train = np.asarray(x_train,dtype=np.float64)
+	# # 	y_train = np.asarray(y_train,dtype=np.float64)
+	# #
+	# # 	print (y_train.shape)
+	#
+	# if __name__ == '__main__':
+	#     main()
