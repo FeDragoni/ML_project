@@ -33,6 +33,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.datasets import make_regression
 
+from hyperopt import hp, pyll
+
 # import validation
 import csv
 from sklearn.model_selection import GridSearchCV
@@ -62,7 +64,6 @@ y_train = np.asarray(y_train,dtype=np.float64)
 n_estimators = [int(x) for x in np.linspace(start = 200, stop = 2000, num = 2)]
     # Number of features to consider at every split
 max_features = ['auto', 'sqrt']
-
     # Maximum number of levels in tree
 max_depth = [int(x) for x in np.linspace(10, 110, num = 2)]
 max_depth.append(None)
@@ -83,9 +84,15 @@ print(parameters)
 rf = RandomForestClassifier()
 print("ciao")
 
-# Functions.hp_tuning_svm_GS( rf, x_train, y_train,parameters, folds=5, save=True, filename="RF_CLASS_GS.csv")
+param_space_BO={
+	'n_estimators': pyll.scope.int(hp.loguniform('n_estimators', np.log(10), np.log(10000))),
+	'min_samples_split': pyll.scope.int(hp.quniform('min_samples_split', 2, 50, 1)),
+	'max_features': hp.choice('max_features', ['auto', 'sqrt'])
+}
+
+Functions.hp_tuning_svm_GS( rf, x_train, y_train,parameters, folds=5, save=True, filename="RF_CLASS_GS.csv")
 # Functions.hp_tuning_svm_RS( rf, x_train, y_train,parameters, folds=5, save=True, filename="RF_CLASS_RS.csv")
-Functions.hp_tuning_svm_BO( rf ,x_train ,y_train ,parameters ,iterations=10,save=True,filename='RF_CLASS_RS.csv')
+Functions.hp_tuning_svm_BO( rf ,x_train ,y_train ,param_space_BO ,iterations=10,save=True,filename='RF_CLASS_RS.csv')
 
 
 

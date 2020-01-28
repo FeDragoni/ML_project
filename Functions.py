@@ -18,25 +18,29 @@ from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 ##SVM Classifier
 
 ##creo dataset
-train_array = gen_dataset.CSV_to_array('./Monk_dataset/monks-1.train', shuf = True, delimiter = ' ')
-test_array = gen_dataset.CSV_to_array('./Monk_dataset/monks-1.test', shuf = True, delimiter = ' ')
-x_train = train_array[:,1:7]
-y_train = train_array[:,0]
-y_train = y_train.reshape(y_train.shape[0],1)
-x_test = test_array[:,1:7]
-y_test = test_array[:,0]
-y_test = y_test.reshape(y_test.shape[0],1)
+def main():
+	train_array = gen_dataset.CSV_to_array('./Monk_dataset/monks-1.train', shuf = True, delimiter = ' ')
+	test_array = gen_dataset.CSV_to_array('./Monk_dataset/monks-1.test', shuf = True, delimiter = ' ')
+	x_train = train_array[:,1:7]
+	y_train = train_array[:,0]
+	y_train = y_train.reshape(y_train.shape[0],1)
+	x_test = test_array[:,1:7]
+	y_test = test_array[:,0]
+	y_test = y_test.reshape(y_test.shape[0],1)
 
-x_train = np.asarray(x_train,dtype=np.float64)
-y_train = np.asarray(y_train,dtype=np.float64)
+	x_train = np.asarray(x_train,dtype=np.float64)
+	y_train = np.asarray(y_train,dtype=np.float64)
 
-print (y_train.shape)
+	print (y_train.shape)
+
+if __name__ == '__main__':
+    main()
 
 ##parametri
-def hp_tuning_svm_GS(svm, x, y, param_grid, folds=5, save=True, filename="SVM_GS.csv"):
+def hp_tuning_GS(estimator, x, y, param_grid, folds=5, save=True, filename="SVM_GS.csv"):
 	start_time = time.time()
 	y=np.ravel(y,order='C')
-	clf = GridSearchCV(svm, param_grid, cv=folds)
+	clf = GridSearchCV(estimator, param_grid, cv=folds)
 	grid_fitted = clf.fit(x, y)
 	print("Time used for grid search: %.3f" %(time.time()-start_time))
 	means_test = grid_fitted.cv_results_['mean_test_score']
@@ -59,13 +63,13 @@ def hp_tuning_svm_GS(svm, x, y, param_grid, folds=5, save=True, filename="SVM_GS
 
 	return grid_fitted
 
-def hp_tuning_svm_RS(svm, x, y, param_dist, iterations=10, folds=5, save=True, filename="SVM_CLASS_RS.csv"):
+def hp_tuning_RS(estimator, x, y, param_dist, iterations=10, folds=5, save=True, filename="SVM_CLASS_RS.csv"):
 	# NOTE: continuous parameters should be given as a distribution for a proper random search
     # Distributions can be generated with scipy.stats module
     # For parameters that need to be explored in terms of order of magnitude loguniform distribution is recommended
 	start_time = time.time()
 	y=np.ravel(y,order='C')
-	clf = RandomizedSearchCV(svm, param_dist, n_iter=iterations, cv=folds)
+	clf = RandomizedSearchCV(estimator, param_dist, n_iter=iterations, cv=folds)
 	grid_fitted = clf.fit(x, y)
 	print("Time used for randomized search: %.3f" %(time.time()-start_time))
 	means_test = grid_fitted.cv_results_['mean_test_score']
@@ -172,16 +176,16 @@ def hp_tuning_svm_regr_RS(svr, x_train, y_train, param_grid, folds=5, save=True,
     print(gh)
 
 
-def bayesian_func_generator_classification(x,y,n_splits=5):
+def bayesian_func_generator_classification(estimator_func,x,y,n_splits=5):
 	def score_func (param_dist):
-		svc = svm.SVC(**param_dist)
+		estimator = estimator_func(**param_dist)
 		score = cross_val_score(svc, x, y,cv=n_splits).mean()
 		return {'loss': (-score), 'status': STATUS_OK}
 	return score_func
 
-def hp_tuning_svm_BO(svm,x,y,param_dist,iterations=10,save=True,filename='SVM_CLASS_BO.csv'):
+def hp_tuning_BO(estimator_func,x,y,param_dist,iterations=10,save=True,filename='SVM_CLASS_BO.csv'):
 	y=np.ravel(y,order='C')
-	objective_function = bayesian_func_generator_classification(x,y)
+	objective_function = bayesian_func_generator_classification(estimator_func,x,y)
 	trials = Trials()
 	best_param = fmin(objective_function,
                   param_dist,
@@ -221,9 +225,10 @@ param_dist_BO = {
     #'reg_lambda': hp.uniform('reg_lambda', 0.0, 1.0)
 }
 
-svc = svm.SVC()
-#hp_tuning_svm_BO(svc,x_train,y_train,param_dist_BO,iterations=50)
-hp_tuning_svm_RS(svc,x_train,y_train,param_dist_RS)
+#svc = svm.SVC()
+#print("\n\nYOOOOOH\n\n")
+#hp_tuning_BO(svm.SVC,x_train,y_train,param_dist_BO,iterations=50)
+#hp_tuning_RS(svc,x_train,y_train,param_dist_RS)
 
 ########### MI DA PROBLEMI DI IDENTAZIONE NON SO PERCHÈ, VOGLIO MORIRE AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 # def hp_tuning_rf_regr_GS(svr, x_train, y_train, param_grid, folds=5, save=True, filename="RF_REGRESSOR_GS.csv"):
