@@ -1,0 +1,12 @@
+param_space = {
+	#'epochs':pyll.scope.int(hp.loguniform('epochs', np.log(500), np.log(1000))),
+	'epochs':hp.choice('epochs', [250]),
+	'batch_size':hp.choice('batch_size', [62]),
+	'lr':hp.loguniform('lr', np.log(0.01), np.log(1)),
+	'mom':hp.uniform('mom', 0.01, 1),
+	'decay_rate':hp.loguniform('decay_rate', np.log(0.00001), np.log(0.1)),
+	#'decay_rate':hp.choice('decay_rate', [0.0]),
+	'loss_function':hp.choice('loss_function', [keras.losses.binary_crossentropy]),
+	'activation':hp.choice('activation', ['tanh']),
+	'nesterov':hp.choice('nesterov', [False,True])
+	}

@@ -1,0 +1,2 @@
+Index,Score,Score TRAIN,Std,Std Dev TRAIN,estimator__C,estimator__coef0,estimator__degree,estimator__epsilon,estimator__gamma
+0,0.9559013978478694,0.9644925687659962,0.0023076015646868037,0.0010243987262941047,0.199,1.5,3,0.1,0.21
